@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Website Tin Tức Đời Sống{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="dashboard-header">
+        <h1>Dashboard</h1>
+        <p>Xin chào, <strong>{{ user.username }}</strong>!</p>
+        <a href="{{ url_for('create_article') }}" class="btn btn-primary">+ Tạo bài viết mới</a>
+    </div>
+    
+    <div class="dashboard-stats">
+        <div class="stat-card">
+            <h3>{{ articles|length }}</h3>
+            <p>Tổng số bài viết</p>
+        </div>
+        <div class="stat-card">
+            <h3>{{ articles|selectattr('published')|list|length }}</h3>
+            <p>Bài viết đã xuất bản</p>
+        </div>
+    </div>
+    
+    <div class="dashboard-articles">
+        <h2>Quản lý bài viết</h2>
+        {% if articles %}
+        <div class="articles-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tiêu đề</th>
+                        <th>Danh mục</th>
+                        <th>Ngày tạo</th>
+                        <th>Lượt xem</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for article in articles %}
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('article_detail', article_id=article.id) }}">
+                                {{ article.title[:50] }}{% if article.title|length > 50 %}...{% endif %}
+                            </a>
+                        </td>
+                        <td>{{ article.category.name }}</td>
+                        <td>{{ article.created_at.strftime('%d/%m/%Y') }}</td>
+                        <td>{{ article.views }}</td>
+                        <td>
+                            {% if article.published %}
+                            <span class="badge badge-success">Đã xuất bản</span>
+                            {% else %}
+                            <span class="badge badge-warning">Bản nháp</span>
+                            {% endif %}
+                        </td>
+                        <td class="actions">
+                            <a href="{{ url_for('edit_article', article_id=article.id) }}" class="btn btn-sm btn-primary">Sửa</a>
+                            <form method="POST" action="{{ url_for('delete_article', article_id=article.id) }}" style="display: inline;" onsubmit="return confirm('Bạn có chắc chắn muốn xóa bài viết này?');">
+                                <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="no-articles">Bạn chưa có bài viết nào. <a href="{{ url_for('create_article') }}">Tạo bài viết đầu tiên</a></p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
