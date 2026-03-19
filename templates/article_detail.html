@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}{{ article.title }} - Website Tin Tức Đời Sống{% endblock %}
+
+{% block content %}
+<div class="container">
+    <article class="article-detail">
+        <div class="article-header">
+            <div class="article-meta">
+                <span class="category-badge">{{ article.category.name }}</span>
+                <span class="date">{{ article.created_at.strftime('%d/%m/%Y %H:%M') }}</span>
+                <span class="views">👁️ {{ article.views }} lượt xem</span>
+            </div>
+            <h1 class="article-title">{{ article.title }}</h1>
+            <div class="article-author">
+                <span>Tác giả: <strong>{{ article.author.username }}</strong></span>
+            </div>
+        </div>
+        
+        {% if article.image_url %}
+        <div class="article-image-large">
+            <img src="{{ article.image_url }}" alt="{{ article.title }}">
+        </div>
+        {% endif %}
+        
+        <div class="article-body">
+            <p class="article-excerpt">{{ article.excerpt or '' }}</p>
+            <div class="article-content-text">
+                {{ article.content | replace('\n', '<br>') | safe }}
+            </div>
+        </div>
+        
+        <div class="article-actions">
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">← Quay lại trang chủ</a>
+            {% if session.user_id and (article.user_id == session.user_id or session.is_admin) %}
+            <a href="{{ url_for('edit_article', article_id=article.id) }}" class="btn btn-primary">Chỉnh sửa</a>
+            {% endif %}
+        </div>
+    </article>
+</div>
+{% endblock %}

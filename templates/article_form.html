@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}{% if article %}Chỉnh sửa bài viết{% else %}Tạo bài viết mới{% endif %} - Website Tin Tức Đời Sống{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="form-header">
+        <h1>{% if article %}Chỉnh sửa bài viết{% else %}Tạo bài viết mới{% endif %}</h1>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">← Quay lại Dashboard</a>
+    </div>
+    
+    <div class="form-container">
+        <form method="POST" class="article-form">
+            <div class="form-group">
+                <label for="title">Tiêu đề bài viết *</label>
+                <input type="text" id="title" name="title" value="{{ article.title if article else '' }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="category_id">Danh mục *</label>
+                <select id="category_id" name="category_id" required>
+                    <option value="">-- Chọn danh mục --</option>
+                    {% for category in categories %}
+                    <option value="{{ category.id }}" {% if article and article.category_id == category.id %}selected{% endif %}>
+                        {{ category.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="excerpt">Tóm tắt</label>
+                <textarea id="excerpt" name="excerpt" rows="3">{{ article.excerpt if article else '' }}</textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="image_url">URL hình ảnh</label>
+                <input type="url" id="image_url" name="image_url" value="{{ article.image_url if article else '' }}" placeholder="https://example.com/image.jpg">
+            </div>
+            
+            <div class="form-group">
+                <label for="content">Nội dung bài viết *</label>
+                <textarea id="content" name="content" rows="15" required>{{ article.content if article else '' }}</textarea>
+            </div>
+            
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="published" {% if article and article.published or not article %}checked{% endif %}>
+                    <span>Xuất bản ngay</span>
+                </label>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">{% if article %}Cập nhật{% else %}Tạo bài viết{% endif %}</button>
+                <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Hủy</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

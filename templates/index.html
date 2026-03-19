@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Trang chủ - Website Tin Tức Đời Sống{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="container">
+        <h2>Chào mừng đến với Website Tin Tức Đời Sống</h2>
+        <p>Cập nhật những tin tức mới nhất về đời sống, văn hóa, thể thao, công nghệ và nhiều hơn nữa</p>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Categories Section -->
+    <section id="categories" class="categories-section">
+        <h2 class="section-title">Danh mục tin tức</h2>
+        <div class="categories-grid">
+            {% for category in categories %}
+            <div class="category-card">
+                <a href="{{ url_for('category_articles', category_id=category.id) }}">
+                    <h3>{{ category.name }}</h3>
+                    <p>{{ category.description or 'Không có mô tả' }}</p>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Latest Articles -->
+    <section class="articles-section">
+        <h2 class="section-title">Tin tức mới nhất</h2>
+        <div class="articles-grid">
+            {% for article in articles %}
+            <article class="article-card">
+                {% if article.image_url %}
+                <div class="article-image">
+                    <img src="{{ article.image_url }}" alt="{{ article.title }}">
+                </div>
+                {% endif %}
+                <div class="article-content">
+                    <div class="article-meta">
+                        <span class="category-badge">{{ article.category.name }}</span>
+                        <span class="date">{{ article.created_at.strftime('%d/%m/%Y') }}</span>
+                    </div>
+                    <h3 class="article-title">
+                        <a href="{{ url_for('article_detail', article_id=article.id) }}">{{ article.title }}</a>
+                    </h3>
+                    {% if article.excerpt %}
+                    <p class="article-excerpt">{{ article.excerpt }}</p>
+                    {% endif %}
+                    <div class="article-footer">
+                        <span class="author">Tác giả: {{ article.author.username }}</span>
+                        <span class="views">👁️ {{ article.views }} lượt xem</span>
+                    </div>
+                </div>
+            </article>
+            {% else %}
+            <p class="no-articles">Chưa có bài viết nào. Hãy đăng nhập để tạo bài viết đầu tiên!</p>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}

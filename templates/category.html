@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}{{ category.name }} - Website Tin Tức Đời Sống{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="category-header">
+        <h1>{{ category.name }}</h1>
+        {% if category.description %}
+        <p class="category-description">{{ category.description }}</p>
+        {% endif %}
+    </div>
+    
+    <div class="articles-grid">
+        {% for article in articles %}
+        <article class="article-card">
+            {% if article.image_url %}
+            <div class="article-image">
+                <img src="{{ article.image_url }}" alt="{{ article.title }}">
+            </div>
+            {% endif %}
+            <div class="article-content">
+                <div class="article-meta">
+                    <span class="date">{{ article.created_at.strftime('%d/%m/%Y') }}</span>
+                </div>
+                <h3 class="article-title">
+                    <a href="{{ url_for('article_detail', article_id=article.id) }}">{{ article.title }}</a>
+                </h3>
+                {% if article.excerpt %}
+                <p class="article-excerpt">{{ article.excerpt }}</p>
+                {% endif %}
+                <div class="article-footer">
+                    <span class="author">Tác giả: {{ article.author.username }}</span>
+                    <span class="views">👁️ {{ article.views }} lượt xem</span>
+                </div>
+            </div>
+        </article>
+        {% else %}
+        <p class="no-articles">Chưa có bài viết nào trong danh mục này.</p>
+        {% endfor %}
+    </div>
+    
+    <div class="back-link">
+        <a href="{{ url_for('index') }}" class="btn btn-secondary">← Quay lại trang chủ</a>
+    </div>
+</div>
+{% endblock %}
