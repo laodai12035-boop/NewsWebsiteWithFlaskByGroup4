@@ -1,17 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ article.meta_title or article.title }} - Báo Mới Đây !!!{% endblock %}
-
-{% block seo_meta %}
-    <meta name="description" content="{{ article.meta_description or article.excerpt or '' }}">
-    <meta property="og:title" content="{{ article.meta_title or article.title }}">
-    <meta property="og:description" content="{{ article.meta_description or article.excerpt or '' }}">
-    {% set img = (article.image_ref|image_src) %}
-    {% if img %}
-    <meta property="og:image" content="{{ request.host_url[:-1] }}{{ img }}">
-    {% endif %}
-    <meta property="og:type" content="article">
-{% endblock %}
+{% block title %}{{ article.title }} - Báo Mới Đây !!!{% endblock %}
 
 {% block content %}
 <div class="container">
@@ -35,24 +24,53 @@
         </div>
         {% endif %}
         
+        {% if article.summary_text %}
+        <section class="article-summary">
+            <h2>Tóm tắt nhanh</h2>
+            <p>{{ article.summary_text }}</p>
+        </section>
+        {% elif enable_ai_summary and session.user_id and session.role in ['admin', 'editor', 'author'] %}
+        <section class="article-summary">
+            <button id="btn-generate-summary"
+                    data-url="{{ url_for('dashboard.summarize_article', article_id=article.id) }}"
+                    class="btn btn-secondary">
+                Tạo tóm tắt (AI)
+            </button>
+            <p class="small-muted">Dùng OpenAI để tạo tóm tắt, chỉ dành cho tác giả/biên tập/Admin.</p>
+        </section>
+        {% endif %}
+
         <div class="article-body">
             <p class="article-excerpt">{{ article.excerpt or '' }}</p>
             <div class="article-content-text">
-                {{ article.content | safe }}
+                {{ article.content | replace('\n', '<br>') | safe }}
             </div>
         </div>
-
-        {% if article.tags %}
-        <div class="article-tags" style="margin-top: 20px; padding: 10px 0; border-top: 1px solid #eee;">
-            <strong>Tags:</strong>
-            {% for tag in article.tags %}
-            <a href="{{ url_for('main.tag_articles', slug=tag.slug) }}" class="category-badge" style="background-color: #f1f2f6; color: #2f3542; margin-right: 5px;">#{{ tag.name }}</a>
-            {% endfor %}
-        </div>
-        {% endif %}
         
         <div class="article-actions">
             <a href="{{ url_for('main.index') }}" class="btn btn-secondary">← Quay lại trang chủ</a>
+            <button id="btn-play-audio" class="btn btn-secondary">
+                🔊 Nghe bài viết
+            </button>
+
+            <audio id="audio-player" controls style="width: 100%; margin-top: 10px; display:none;">
+                <source id="audio-source" src="" type="audio/mpeg">
+            </audio>
+
+            <script>
+            document.getElementById("btn-play-audio").addEventListener("click", function () {
+                const audio = document.getElementById("audio-player");
+                const source = document.getElementById("audio-source");
+
+                if (!source.src) {
+                    source.src = "{{ url_for('main.article_tts', article_id=article.id) }}";
+                    audio.load();
+                }
+
+                audio.style.display = "block";
+                audio.play();
+            });
+            </script>
             {% if session.user_id %}
                 <form method="POST" action="{{ url_for('main.toggle_favorite', article_id=article.id) }}" style="display:inline;">
                     <button type="submit" class="btn {% if is_favorited %}btn-secondary{% else %}btn-primary{% endif %}">
