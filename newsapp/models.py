@@ -65,6 +65,21 @@ class Category(db.Model):
     articles = db.relationship("Article", back_populates="category", lazy=True)
 
 
+article_tags = db.Table(
+    "article_tags",
+    db.Column("article_id", db.Integer, db.ForeignKey("articles.id"), primary_key=True),
+    db.Column("tag_id", db.Integer, db.ForeignKey("tags.id"), primary_key=True)
+)
+
+
+class Tag(db.Model):
+    __tablename__ = "tags"
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), unique=True, nullable=False, index=True)
+    slug = db.Column(db.String(50), unique=True, nullable=False, index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
 class Article(db.Model):
     __tablename__ = "articles"
 
@@ -75,6 +90,10 @@ class Article(db.Model):
     # Can be either an external URL (https://...) or a local static path (uploads/...)
     image_ref = db.Column(db.String(500))
 
+    # SEO fields
+    meta_title = db.Column(db.String(255))
+    meta_description = db.Column(db.String(500))
+
     status = db.Column(db.String(20), nullable=False, default=ArticleStatus.DRAFT, index=True)
     review_note = db.Column(db.String(500))
 
@@ -83,16 +102,12 @@ class Article(db.Model):
     published_at = db.Column(db.DateTime)
     views = db.Column(db.Integer, default=0, nullable=False)
 
-    # AI features
-    audio_ref = db.Column(db.String(500))  # static-relative path to generated audio
-    audio_duration = db.Column(db.Integer)  # seconds, optional
-    summary_text = db.Column(db.Text)
-
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False, index=True)
     category_id = db.Column(db.Integer, db.ForeignKey("categories.id"), nullable=False, index=True)
 
     author = db.relationship("User", back_populates="articles")
     category = db.relationship("Category", back_populates="articles")
+    tags = db.relationship("Tag", secondary=article_tags, lazy="subquery", backref=db.backref("articles", lazy=True))
     comments = db.relationship(
         "Comment", back_populates="article", lazy=True, order_by="Comment.created_at.desc()"
     )
