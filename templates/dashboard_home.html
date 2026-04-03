@@ -37,6 +37,43 @@
         </form>
         {% endif %}
     </div>
-</div>
-{% endblock %}
 
+    {% if user.role == 'admin' %}
+    <div class="dashboard-charts" style="margin-top: 30px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+        <h2 style="margin-bottom: 20px;">Thống kê bài viết theo Danh mục</h2>
+        <canvas id="categoryChart" width="400" height="150"></canvas>
+    </div>
+    {% endif %}
+
+</div>
+
+{% if user.role == 'admin' %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var ctx = document.getElementById('categoryChart').getContext('2d');
+        var categoryChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: {{ chart_labels | tojson | safe }},
+                datasets: [{
+                    label: 'Số lượng bài viết',
+                    data: {{ chart_data | tojson | safe }},
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1 }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endif %}
+{% endblock %}
