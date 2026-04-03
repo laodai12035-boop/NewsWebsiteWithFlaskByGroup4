@@ -4,8 +4,8 @@ from flask import Blueprint, flash, jsonify, redirect, render_template, request,
 from sqlalchemy import or_
 
 from ..extensions import db
-from ..models import Article, ArticleStatus, Category, User, UserRole
-from ..services import article_service, ai_service
+from ..models import Article, ArticleStatus, Category, Tag, User, UserRole
+from ..services import article_service
 from ..utils.auth import get_current_user, login_required
 from ..utils.uploads import save_image_upload
 
@@ -24,11 +24,23 @@ def dashboard_home():
     if user.role == UserRole.ADMIN:
         pending_count = Article.query.filter(Article.status == ArticleStatus.PENDING).count()
         users_count = User.query.count()
+        
+        # Data cho Chart: Số lượng bài viết theo Category
+        categories = Category.query.all()
+        chart_labels = []
+        chart_data = []
+        for cat in categories:
+            count = Article.query.filter_by(category_id=cat.id).count()
+            chart_labels.append(cat.name)
+            chart_data.append(count)
+        users_count = User.query.count()
         return render_template(
             "dashboard_home.html",
             user=user,
             pending_count=pending_count,
             users_count=users_count,
+            chart_labels=chart_labels,
+            chart_data=chart_data
         )
 
     # Author/User view
@@ -104,7 +116,21 @@ def create_article():
             user_id=user.id,
             category_id=int(category_id),
             status=status,
+            meta_title=(request.form.get("meta_title") or "").strip()[:255] or None,
+            meta_description=(request.form.get("meta_description") or "").strip()[:500] or None,
         )
+        
+        # Xử lý tags
+        tags_str = (request.form.get("tags") or "").strip()
+        if tags_str:
+            tag_names = [t.strip() for t in tags_str.split(",") if t.strip()]
+            for name in tag_names:
+                slug = name.lower().replace(" ", "-")
+                tag = Tag.query.filter_by(name=name).first()
+                if not tag:
+                    tag = Tag(name=name, slug=slug)
+                article.tags.append(tag)
+
         db.session.add(article)
         db.session.commit()
 
@@ -164,11 +190,25 @@ def edit_article(article_id: int):
         article.content = content
         article.excerpt = excerpt[:500] if excerpt else None
         article.category_id = int(category_id)
+        article.meta_title = (request.form.get("meta_title") or "").strip()[:255] or None
+        article.meta_description = (request.form.get("meta_description") or "").strip()[:500] or None
 
         if upload.static_path:
             article.image_ref = upload.static_path
         elif image_url:
             article.image_ref = image_url
+
+        # Cập nhật tags
+        tags_str = (request.form.get("tags") or "").strip()
+        article.tags.clear()
+        if tags_str:
+            tag_names = [t.strip() for t in tags_str.split(",") if t.strip()]
+            for name in tag_names:
+                slug = name.lower().replace(" ", "-")
+                tag = Tag.query.filter_by(name=name).first()
+                if not tag:
+                    tag = Tag(name=name, slug=slug)
+                article.tags.append(tag)
 
         if user.role == UserRole.AUTHOR and action == "submit":
             article_service.submit_for_review(article)
@@ -240,29 +280,4 @@ def upload_inline_image():
 
     url = url_for("static", filename=upload.static_path, _external=False)
     return jsonify({"ok": True, "url": url})
-
-
-@bp.route("/articles/<int:article_id>/summarize", methods=["POST"])
-@login_required
-def summarize_article(article_id: int):
-    """Generate or refresh AI summary for an article (author/editor/admin)."""
-    user = get_current_user()
-    assert user is not None
-
-    article = Article.query.get_or_404(article_id)
-
-    can_summarize = user.role in (UserRole.ADMIN, UserRole.EDITOR) or (
-        user.role == UserRole.AUTHOR and article.user_id == user.id
-    )
-    if not can_summarize:
-        return jsonify({"ok": False, "error": "Bạn không có quyền tóm tắt bài viết này."}), 403
-
-    try:
-        summary = ai_service.summarize_article(article)
-    except Exception as exc:
-        return jsonify({"ok": False, "error": f"Lỗi khi gọi OpenAI: {exc}"}), 500
-
-    article.summary_text = summary
-    db.session.commit()
-    return jsonify({"ok": True, "summary": summary})
 
