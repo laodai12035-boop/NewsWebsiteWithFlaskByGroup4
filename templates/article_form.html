@@ -10,7 +10,7 @@
     </div>
     
     <div class="form-container">
-        <form method="POST" class="article-form" enctype="multipart/form-data">
+        <form method="POST" class="article-form" enctype="multipart/form-data" id="articleForm">
             <div class="form-group">
                 <label for="title">Tiêu đề bài viết *</label>
                 <input type="text" id="title" name="title" value="{{ article.title if article else '' }}" required>
@@ -29,6 +29,11 @@
             </div>
             
             <div class="form-group">
+                <label for="tags">Tags (phân cách bởi dấu phẩy)</label>
+                <input type="text" id="tags" name="tags" value="{% if article %}{{ article.tags|map(attribute='name')|join(', ') }}{% endif %}" placeholder="Ví dụ: Thể thao, Chuyển nhượng, Bóng đá">
+            </div>
+
+            <div class="form-group">
                 <label for="excerpt">Tóm tắt</label>
                 <textarea id="excerpt" name="excerpt" rows="3">{{ article.excerpt if article else '' }}</textarea>
             </div>
@@ -40,7 +45,7 @@
                     {% set img = (article.image_ref|image_src) %}
                     {% if img %}
                     <div class="image-preview">
-                        <img src="{{ img }}" alt="Ảnh bài viết">
+                        <img src="{{ img }}" alt="Ảnh bài viết" style="max-height: 150px">
                     </div>
                     {% endif %}
                 {% endif %}
@@ -53,16 +58,19 @@
             
             <div class="form-group">
                 <label for="content">Nội dung bài viết *</label>
-                <textarea id="content" name="content" rows="15" required>{{ article.content if article else '' }}</textarea>
+                <textarea id="content_editor" name="content" rows="15">{{ article.content if article else '' }}</textarea>
             </div>
 
             <div class="form-group">
-                <label for="inline_image_file">Chèn hình ảnh vào nội dung</label>
-                <input type="file" id="inline_image_file" accept=".png,.jpg,.jpeg,.webp,.gif">
-                <p class="small-muted">Ảnh sẽ được upload và tự động chèn thẻ &lt;img&gt; vào vị trí con trỏ trong nội dung.</p>
+                <h3 style="margin-bottom: 10px; border-bottom: 1px solid #ddd; padding-bottom: 5px;">Cấu hình SEO</h3>
+                <label for="meta_title">Thẻ Title (SEO)</label>
+                <input type="text" id="meta_title" name="meta_title" value="{{ article.meta_title if article and article.meta_title else '' }}" placeholder="Mặc định lấy tiêu đề bài viết">
+                <br><br>
+                <label for="meta_description">Thẻ Description (SEO)</label>
+                <textarea id="meta_description" name="meta_description" rows="2" placeholder="Mặc định lấy tóm tắt bài viết">{{ article.meta_description if article and article.meta_description else '' }}</textarea>
             </div>
 
-            <div class="form-actions">
+            <div class="form-actions" style="margin-top: 20px;">
                 <button type="submit" class="btn btn-secondary" name="action" value="save">Lưu nháp</button>
                 <button type="submit" class="btn btn-primary" name="action" value="submit">Gửi duyệt</button>
                 <a href="{{ url_for('dashboard.my_articles') }}" class="btn btn-secondary">Hủy</a>
@@ -70,4 +78,28 @@
         </form>
     </div>
 </div>
+
+<!-- TinyMCE Script -->
+<script src="https://cdn.tiny.cloud/1/fzzhqbhul1yjm5lfoem8yyasbzuhm7jt0328rxjzunvioy7b/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+<script>
+    tinymce.init({
+        selector: '#content_editor',
+        plugins: 'advlist autolink lists link image charmap preview anchor pagebreak searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking save table directionality emoticons template',
+        toolbar: 'undo redo | formatselect | bold italic strikethrough forecolor backcolor | alignleft aligncenter alignright alignjustify | numlist bullist outdent indent | removeformat | link image media | code preview fullscreen',
+        menubar: 'file edit view insert format tools table help',
+        height: 500,
+        promotion: false,  // Hide the "Upgrade" button in TinyMCE free version
+        setup: function (editor) {
+            editor.on('change', function () {
+                editor.save();
+            });
+        }
+    });
+
+    document.getElementById('articleForm').addEventListener('submit', function() {
+        if(tinymce.activeEditor) {
+            tinymce.activeEditor.save();
+        }
+    });
+</script>
 {% endblock %}
