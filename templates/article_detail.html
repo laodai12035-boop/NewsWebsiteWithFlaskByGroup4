@@ -1,6 +1,17 @@
 {% extends "base.html" %}
 
-{% block title %}{{ article.title }} - Website Tin Tức Đời Sống{% endblock %}
+{% block title %}{{ article.meta_title or article.title }} - Báo Mới Đây !!!{% endblock %}
+
+{% block seo_meta %}
+    <meta name="description" content="{{ article.meta_description or article.excerpt or '' }}">
+    <meta property="og:title" content="{{ article.meta_title or article.title }}">
+    <meta property="og:description" content="{{ article.meta_description or article.excerpt or '' }}">
+    {% set img = (article.image_ref|image_src) %}
+    {% if img %}
+    <meta property="og:image" content="{{ request.host_url[:-1] }}{{ img }}">
+    {% endif %}
+    <meta property="og:type" content="article">
+{% endblock %}
 
 {% block content %}
 <div class="container">
@@ -17,25 +28,81 @@
             </div>
         </div>
         
-        {% if article.image_url %}
+        {% set img = (article.image_ref|image_src) %}
+        {% if img %}
         <div class="article-image-large">
-            <img src="{{ article.image_url }}" alt="{{ article.title }}">
+            <img src="{{ img }}" alt="{{ article.title }}">
         </div>
         {% endif %}
         
         <div class="article-body">
             <p class="article-excerpt">{{ article.excerpt or '' }}</p>
             <div class="article-content-text">
-                {{ article.content | replace('\n', '<br>') | safe }}
+                {{ article.content | safe }}
             </div>
         </div>
+
+        {% if article.tags %}
+        <div class="article-tags" style="margin-top: 20px; padding: 10px 0; border-top: 1px solid #eee;">
+            <strong>Tags:</strong>
+            {% for tag in article.tags %}
+            <a href="{{ url_for('main.tag_articles', slug=tag.slug) }}" class="category-badge" style="background-color: #f1f2f6; color: #2f3542; margin-right: 5px;">#{{ tag.name }}</a>
+            {% endfor %}
+        </div>
+        {% endif %}
         
         <div class="article-actions">
-            <a href="{{ url_for('index') }}" class="btn btn-secondary">← Quay lại trang chủ</a>
-            {% if session.user_id and (article.user_id == session.user_id or session.is_admin) %}
-            <a href="{{ url_for('edit_article', article_id=article.id) }}" class="btn btn-primary">Chỉnh sửa</a>
+            <a href="{{ url_for('main.index') }}" class="btn btn-secondary">← Quay lại trang chủ</a>
+            {% if session.user_id %}
+                <form method="POST" action="{{ url_for('main.toggle_favorite', article_id=article.id) }}" style="display:inline;">
+                    <button type="submit" class="btn {% if is_favorited %}btn-secondary{% else %}btn-primary{% endif %}">
+                        {% if is_favorited %}★ Đã lưu yêu thích{% else %}☆ Lưu vào yêu thích{% endif %}
+                    </button>
+                </form>
+                {% if session.role in ['admin', 'editor'] %}
+                    <a href="{{ url_for('dashboard.edit_article', article_id=article.id) }}" class="btn btn-primary">Chỉnh sửa</a>
+                {% endif %}
+                {% if session.role in ['admin', 'editor'] and article.status == 'published' %}
+                    <form method="POST" action="{{ url_for('editor.unpublish_article', article_id=article.id) }}" style="display:inline;" onsubmit="return confirm('Gỡ bài khỏi trang chủ?');">
+                        <button type="submit" class="btn btn-danger">Gỡ bài</button>
+                    </form>
+                {% endif %}
             {% endif %}
         </div>
     </article>
+
+    <!-- Comments -->
+    <section class="comments-section">
+        <h2>Bình luận</h2>
+
+        {% if session.user_id %}
+        <form method="POST" action="{{ url_for('main.add_comment', article_id=article.id) }}" class="comment-form">
+            <div class="form-group">
+                <textarea name="content" rows="4" placeholder="Chia sẻ suy nghĩ của bạn..." required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Gửi bình luận</button>
+        </form>
+        {% else %}
+        <p class="no-articles">
+            Vui lòng <a href="{{ url_for('auth.login') }}">đăng nhập</a> để bình luận và lưu bài viết vào mục yêu thích.
+        </p>
+        {% endif %}
+
+        <div class="comments-list">
+            {% for c in approved_comments %}
+            <div class="comment-item">
+                <div class="comment-header">
+                    <span class="comment-author">{{ c.author.username }}</span>
+                    <span class="comment-date">{{ c.created_at.strftime('%d/%m/%Y %H:%M') }}</span>
+                </div>
+                <div class="comment-body">
+                    {{ c.content | e | replace('\n', '<br>') | safe }}
+                </div>
+            </div>
+            {% else %}
+            <p class="no-articles">Chưa có bình luận nào. Hãy là người đầu tiên bình luận!</p>
+            {% endfor %}
+        </div>
+    </section>
 </div>
 {% endblock %}

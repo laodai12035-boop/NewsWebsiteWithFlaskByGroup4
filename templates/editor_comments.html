@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Duyệt bình luận - Báo Mới Đây !!!{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="dashboard-header">
+        <div>
+            <h1>Duyệt bình luận</h1>
+            <p>Bình luận do user gửi cần được Admin/Editor duyệt trước khi hiển thị công khai.</p>
+        </div>
+        <a class="btn btn-secondary" href="{{ url_for('dashboard.dashboard_home') }}">← Dashboard</a>
+    </div>
+
+    <section class="search-section">
+        <form method="GET" action="{{ url_for('editor.review_comments') }}" class="search-form">
+            <input type="text" name="q" placeholder="Tìm trong nội dung bình luận..." value="{{ q or '' }}">
+            <select name="status">
+                <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Chờ duyệt</option>
+                <option value="approved" {% if status_filter == 'approved' %}selected{% endif %}>Đã duyệt</option>
+                <option value="rejected" {% if status_filter == 'rejected' %}selected{% endif %}>Đã từ chối</option>
+            </select>
+            <button type="submit" class="btn btn-primary">Lọc</button>
+        </form>
+    </section>
+
+    <div class="dashboard-articles">
+        {% if comments %}
+        <div class="articles-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nội dung</th>
+                        <th>Người gửi</th>
+                        <th>Bài viết</th>
+                        <th>Ngày gửi</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in comments %}
+                    <tr>
+                        <td>
+                            <div class="comment-preview">{{ c.content[:200] }}{% if c.content|length > 200 %}...{% endif %}</div>
+                            {% if c.review_note %}
+                            <div class="small-muted">Ghi chú: {{ c.review_note }}</div>
+                            {% endif %}
+                        </td>
+                        <td>{{ c.author.username }}</td>
+                        <td>
+                            <a href="{{ url_for('main.article_detail', article_id=c.article.id) }}">{{ c.article.title[:40] }}{% if c.article.title|length > 40 %}...{% endif %}</a>
+                        </td>
+                        <td>{{ c.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                        <td>
+                            <span class="badge badge-status badge-{{ c.status }}">{{ c.status }}</span>
+                        </td>
+                        <td class="actions">
+                            {% if c.status == 'pending' %}
+                            <form method="POST" action="{{ url_for('editor.approve_comment', comment_id=c.id) }}" style="display:inline;">
+                                <button type="submit" class="btn btn-sm btn-primary">Duyệt</button>
+                            </form>
+                            <form method="POST" action="{{ url_for('editor.reject_comment', comment_id=c.id) }}" style="display:inline;" class="inline-form">
+                                <input type="text" name="note" placeholder="Lý do từ chối (tuỳ chọn)" class="input-sm">
+                                <button type="submit" class="btn btn-sm btn-danger">Từ chối</button>
+                            </form>
+                            {% else %}
+                            —
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="no-articles">Không có bình luận nào theo bộ lọc.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
