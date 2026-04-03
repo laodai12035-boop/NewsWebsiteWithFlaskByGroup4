@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Quản lý Users - Báo Mới Đây !!!{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="dashboard-header">
+        <div>
+            <h1>Quản lý tài khoản</h1>
+            <p>Tạo/sửa/xóa user, khóa tài khoản, phân quyền admin/editor/author/user.</p>
+        </div>
+        <div class="dashboard-actions">
+            <a class="btn btn-primary" href="{{ url_for('admin.user_create') }}">+ Tạo user</a>
+        </div>
+    </div>
+
+    <section class="search-section">
+        <form method="GET" action="{{ url_for('admin.users_list') }}" class="search-form">
+            <input type="text" name="q" placeholder="Tìm username/email..." value="{{ q or '' }}">
+            <select name="role">
+                <option value="">-- Tất cả role --</option>
+                <option value="admin" {% if role == 'admin' %}selected{% endif %}>admin</option>
+                <option value="editor" {% if role == 'editor' %}selected{% endif %}>editor</option>
+                <option value="author" {% if role == 'author' %}selected{% endif %}>author</option>
+                <option value="user" {% if role == 'user' %}selected{% endif %}>user</option>
+            </select>
+            <select name="active">
+                <option value="">-- Active? --</option>
+                <option value="true" {% if active == 'true' %}selected{% endif %}>active</option>
+                <option value="false" {% if active == 'false' %}selected{% endif %}>inactive</option>
+            </select>
+            <button class="btn btn-primary" type="submit">Lọc</button>
+        </form>
+    </section>
+
+    <div class="dashboard-articles">
+        <div class="articles-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Active</th>
+                        <th>Ngày tạo</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in users %}
+                    <tr>
+                        <td>{{ u.username }}</td>
+                        <td>{{ u.email }}</td>
+                        <td><span class="badge badge-status badge-role">{{ u.role }}</span></td>
+                        <td>
+                            {% if u.active %}
+                            <span class="badge badge-success">active</span>
+                            {% else %}
+                            <span class="badge badge-warning">inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ u.created_at.strftime('%d/%m/%Y') }}</td>
+                        <td class="actions">
+                            <a class="btn btn-sm btn-primary" href="{{ url_for('admin.user_edit', user_id=u.id) }}">Sửa</a>
+                            <form method="POST" action="{{ url_for('admin.user_delete', user_id=u.id) }}" style="display:inline;" onsubmit="return confirm('Xóa user này?');">
+                                <button class="btn btn-sm btn-danger" type="submit">Xóa</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
