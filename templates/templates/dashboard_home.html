@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Báo Mới Đây !!!{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="dashboard-header">
+        <h1>Dashboard</h1>
+        <p>Xin chào, <strong>{{ user.username }}</strong> ({{ user.role }})</p>
+    </div>
+
+    <div class="dashboard-stats">
+        <div class="stat-card">
+            <h3>{{ pending_count or 0 }}</h3>
+            <p>Bài chờ duyệt</p>
+            {% if user.role in ['editor', 'admin'] %}
+                <a class="btn btn-primary btn-sm" href="{{ url_for('editor.review_queue') }}">Mở hàng duyệt</a>
+            {% endif %}
+        </div>
+        {% if user.role == 'admin' %}
+        <div class="stat-card">
+            <h3>{{ users_count or 0 }}</h3>
+            <p>Tài khoản</p>
+            <a class="btn btn-primary btn-sm" href="{{ url_for('admin.users_list') }}">Quản lý users</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="dashboard-actions">
+        <a class="btn btn-secondary" href="{{ url_for('dashboard.my_articles') }}">Bài viết của tôi</a>
+        <a class="btn btn-primary" href="{{ url_for('dashboard.create_article') }}">+ Viết bài</a>
+
+        {% if user.role == 'admin' %}
+        <a class="btn btn-secondary" href="{{ url_for('admin.categories_list') }}">Quản lý danh mục</a>
+        <form method="POST" action="{{ url_for('admin.backup') }}" style="display:inline;">
+            <button class="btn btn-secondary" type="submit">Backup DB</button>
+        </form>
+        {% endif %}
+    </div>
+
+    {% if user.role == 'admin' %}
+    <div class="dashboard-charts" style="margin-top: 30px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+        <h2 style="margin-bottom: 20px;">Thống kê bài viết theo Danh mục</h2>
+        <canvas id="categoryChart" width="400" height="150"></canvas>
+    </div>
+    {% endif %}
+
+</div>
+
+{% if user.role == 'admin' %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var ctx = document.getElementById('categoryChart').getContext('2d');
+        var categoryChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: {{ chart_labels | tojson | safe }},
+                datasets: [{
+                    label: 'Số lượng bài viết',
+                    data: {{ chart_data | tojson | safe }},
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1 }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endif %}
+{% endblock %}
