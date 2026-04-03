@@ -5,15 +5,15 @@
 {% block content %}
 <div class="container">
     <div class="category-header">
-        <h1>{{ category.name }}</h1>
+        <h1>{% if is_tag %}Thẻ (Tag): {% endif %}{{ category.name }}</h1>
         {% if category.description %}
         <p class="category-description">{{ category.description }}</p>
         {% endif %}
     </div>
 
     <section class="search-section">
-        <form method="GET" action="{{ url_for('main.category_articles', category_id=category.id) }}" class="search-form">
-            <input type="text" name="q" placeholder="Tìm trong danh mục..." value="{{ q or '' }}">
+        <form method="GET" action="{% if is_tag %}{{ url_for('main.tag_articles', slug=category.slug) }}{% else %}{{ url_for('main.category_articles', category_id=category.id) }}{% endif %}" class="search-form">
+            <input type="text" name="q" placeholder="Tìm trong danh sách này..." value="{{ q or '' }}">
             <select name="sort">
                 <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Mới nhất</option>
                 <option value="oldest" {% if sort == 'oldest' %}selected{% endif %}>Cũ nhất</option>
