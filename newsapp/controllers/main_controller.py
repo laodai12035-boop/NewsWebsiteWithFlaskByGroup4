@@ -1,12 +1,10 @@
 from __future__ import annotations
-from flask import send_file
-import os
-from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
+
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 from sqlalchemy import or_
 
 from ..extensions import db
-from ..models import Article, ArticleStatus, Category, Comment, CommentStatus, Favorite
-from ..services import tts_service
+from ..models import Article, ArticleStatus, Category, Comment, CommentStatus, Favorite, Tag
 from ..utils.auth import get_current_user, login_required
 
 bp = Blueprint("main", __name__)
@@ -73,50 +71,13 @@ def article_detail(article_id: int):
         .order_by(Comment.created_at.desc())
         .all()
     )
-    enable_ai_summary = bool(current_app.config.get("OPENAI_API_KEY"))
     return render_template(
         "article_detail.html",
         article=article,
         is_favorited=is_favorited,
         approved_comments=approved_comments,
-        enable_ai_summary=enable_ai_summary,
     )
 
-
-@bp.route("/article/<int:article_id>/tts", methods=["GET"])
-def article_tts(article_id: int):
-    """Generate or return existing TTS audio for an article."""
-    article = Article.query.get_or_404(article_id)
-
-    # Kiểm tra quyền
-    if article.status != ArticleStatus.PUBLISHED:
-        user = get_current_user()
-        if not user or (user.role not in ("admin", "editor") and article.user_id != user.id):
-            flash("Bài viết này chưa được xuất bản.", "error")
-            return redirect(url_for("main.index"))
-
-    # Generate nếu chưa có
-    if not article.audio_ref:
-        try:
-            static_path, duration = tts_service.generate_tts(article)
-        except Exception as exc:
-            flash(f"Không thể tạo audio: {exc}", "error")
-            return redirect(url_for("main.article_detail", article_id=article.id))
-
-        article.audio_ref = static_path
-        article.audio_duration = duration
-        db.session.commit()
-
-    # 👉 Lấy đường dẫn file thật
-    base_dir = current_app.config["BASE_DIR"]
-    abs_path = os.path.join(base_dir, "static", article.audio_ref)
-
-    # 👉 TRẢ AUDIO INLINE (KHÔNG DOWNLOAD)
-    return send_file(
-        abs_path,
-        mimetype="audio/mpeg",
-        as_attachment=False
-    )
 
 @bp.route("/category/<int:category_id>")
 def category_articles(category_id: int):
@@ -140,6 +101,31 @@ def category_articles(category_id: int):
 
     articles = query.all()
     return render_template("category.html", category=category, articles=articles, q=q, sort=sort)
+
+
+@bp.route("/tag/<slug>")
+def tag_articles(slug: str):
+    tag = Tag.query.filter_by(slug=slug).first_or_404()
+    q = (request.args.get("q") or "").strip()
+    sort = request.args.get("sort") or "newest"
+
+    query = Article.query.filter(
+        Article.tags.any(id=tag.id), Article.status == ArticleStatus.PUBLISHED
+    )
+    if q:
+        like = f"%{q}%"
+        query = query.filter(or_(Article.title.ilike(like), Article.excerpt.ilike(like), Article.content.ilike(like)))
+
+    if sort == "views":
+        query = query.order_by(Article.views.desc(), Article.created_at.desc())
+    elif sort == "oldest":
+        query = query.order_by(Article.created_at.asc())
+    else:
+        query = query.order_by(Article.created_at.desc())
+
+    articles = query.all()
+    # Tái sử dụng category.html hoặc tạo tag.html, để đơn giản tái sử dụng template với biến title
+    return render_template("category.html", category=tag, articles=articles, q=q, sort=sort, is_tag=True)
 
 
 @bp.route("/article/<int:article_id>/comment", methods=["POST"])
