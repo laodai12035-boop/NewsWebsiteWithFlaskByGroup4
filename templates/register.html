@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 
-{% block title %}Đăng ký - Website Tin Tức Đời Sống{% endblock %}
+{% block title %}Đăng ký - Báo Mới Đây !!!{% endblock %}
 
 {% block content %}
 <div class="container">
     <div class="auth-container">
         <div class="auth-card">
             <h2>Đăng ký</h2>
-            <form method="POST" action="{{ url_for('register') }}" class="auth-form">
+            <form method="POST" action="{{ url_for('auth.register') }}" class="auth-form">
                 <div class="form-group">
                     <label for="username">Tên người dùng</label>
                     <input type="text" id="username" name="username" required>
@@ -27,7 +27,7 @@
                 <button type="submit" class="btn btn-primary btn-block">Đăng ký</button>
             </form>
             <div class="auth-links">
-                <p>Đã có tài khoản? <a href="{{ url_for('login') }}">Đăng nhập ngay</a></p>
+                <p>Đã có tài khoản? <a href="{{ url_for('auth.login') }}">Đăng nhập ngay</a></p>
             </div>
         </div>
     </div>
