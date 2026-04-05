@@ -51,6 +51,7 @@ Website tin tức đời sống là một ứng dụng web cho phép:
   ├── tests/
   │   └── test_smoke.py      # Test script (unittest)
   ├── requirements.txt      # Dependencies
+  ├── news_website_v2.db     # Cơ sở dữ liệu SQLite chính
   └── README.md
   ```
 
