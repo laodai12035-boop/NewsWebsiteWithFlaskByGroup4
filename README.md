@@ -12,9 +12,9 @@ Website tin tức đời sống là một ứng dụng web cho phép:
 - Editor duyệt bài (approve/reject), gỡ bài khỏi trang chủ
 - Admin quản lý users + phân quyền, CRUD danh mục, backup database
 
-## ✅ Tiến độ hoàn thành
+## Tiến độ hoàn thành
 
-### 1. ✅ Cấu trúc dự án (Layered Architecture)
+### 1. Cấu trúc dự án (Layered Architecture)
 - Dự án Flask theo hướng MVC/Layered: Controllers (Blueprints) / Services / Models.
 - Cấu trúc thư mục:
   ```
@@ -54,25 +54,25 @@ Website tin tức đời sống là một ứng dụng web cho phép:
   └── README.md
   ```
 
-### 2. ✅ Thiết kế giao diện
+### 2. Thiết kế giao diện
 - **Home**: Hiển thị danh sách bài viết mới nhất và danh mục
 - **Login**: Form đăng nhập với validation
 - **Register**: Form đăng ký với xác nhận mật khẩu
 - **Dashboard**: Quản lý bài viết với bảng thống kê
 - **CRUD**: Tạo, đọc, cập nhật, xóa bài viết
 
-### 3. ✅ Giao diện responsive
+### 3. Giao diện responsive
 - Thiết kế responsive cho mobile, tablet, desktop
 - Sử dụng CSS Grid và Flexbox
 - Menu điều hướng thân thiện với mobile
 - Giao diện hiện đại, dễ sử dụng
 
-### 4. ✅ Kết nối Database
+### 4. Kết nối Database
 - Sử dụng SQLite database (`news_website_v2.db`)
 - Kết nối thành công với Flask-SQLAlchemy
 - Database tự động tạo khi chạy lần đầu
 
-### 5. ✅ Models Database
+### 5. Models Database
 Đã tạo 3 bảng dữ liệu chính (trong đó 2 bảng chính phục vụ CRUD nghiệp vụ: `Article`, `Category`):
 
 **User (Người dùng)**
@@ -95,26 +95,26 @@ Website tin tức đời sống là một ứng dụng web cho phép:
 - created_at, updated_at, published_at, views
 - Foreign keys: user_id, category_id
 
-### 6. ✅ Seed Data
+### 6. Seed Data
 - Tự động tạo dữ liệu mẫu khi DB trống:
   - admin/editor/author
   - danh mục mẫu
   - bài demo ở nhiều trạng thái (published/pending/draft)
 
-### 7. ✅ Đăng nhập - Đăng ký
+### 7. Đăng nhập - Đăng ký
 - Đăng ký: Validation username, email, mật khẩu
 - Đăng nhập: Xác thực với password hash
 - Session management
 - Flash messages thông báo
 - Bảo mật mật khẩu với Werkzeug
 
-### 8. ✅ Navigation, Header, Footer
+### 8. Navigation, Header, Footer
 - Header: Logo, menu điều hướng, thông tin user
 - Footer: Thông tin website, liên kết nhanh, liên hệ
 - Menu thống nhất trên tất cả các trang
 - Responsive navigation
 
-### 9. ✅ Template Inheritance
+### 9. Template Inheritance
 - Base template (`base.html`) chứa:
   - Header với navigation
   - Flash messages
@@ -123,17 +123,17 @@ Website tin tức đời sống là một ứng dụng web cho phép:
 - Tất cả templates khác extend từ base.html
 - Code DRY, dễ bảo trì
 
-### 10. ✅ README.md
+### 10. README.md
 - Mô tả đầy đủ dự án
 - Hướng dẫn cài đặt và chạy thử
 - Liệt kê tiến độ hoàn thành
 
-### 11. ✅ Phân quyền + workflow
+### 11. Phân quyền + workflow
 - **Admin**: quản lý users + role, CRUD danh mục, backup DB, xem/duyệt/gỡ/xóa bài.
 - **Editor**: xem hàng bài pending, approve/reject, gỡ bài.
 - **Author**: viết bài, sửa bài của mình khi draft/pending/rejected, nộp bài chờ duyệt; không tự publish.
 
-## 🚀 Hướng dẫn cài đặt và chạy thử
+## Hướng dẫn cài đặt và chạy thử
 
 ### Yêu cầu hệ thống
 - Python 3.7 trở lên
@@ -193,7 +193,7 @@ Sau khi chạy lần đầu, database sẽ tự động tạo với các tài kh
    - Upload ảnh (kiểm tra định dạng/kích thước) hoặc nhập URL ảnh
    - Lưu nháp hoặc nộp bài chờ duyệt
 
-## 🧪 Kiểm thử sơ bộ
+## Kiểm thử sơ bộ
 
 Chạy smoke test (unittest):
 
@@ -201,7 +201,7 @@ Chạy smoke test (unittest):
 python -m unittest discover -s tests -p "test_*.py" -v
 ```
 
-## 📁 Cấu trúc Database
+## Cấu trúc Database
 
 ### Bảng User
 - `id`: Primary key
@@ -230,7 +230,7 @@ python -m unittest discover -s tests -p "test_*.py" -v
 - `user_id`: Foreign key → User
 - `category_id`: Foreign key → Category
 
-## 🛠️ Công nghệ sử dụng
+## Công nghệ sử dụng
 
 - **Backend:** Flask (Python)
 - **Database:** SQLite với SQLAlchemy ORM
@@ -238,22 +238,22 @@ python -m unittest discover -s tests -p "test_*.py" -v
 - **Security:** Werkzeug password hashing
 - **Template Engine:** Jinja2 (Flask)
 
-## 📝 Ghi chú
+## Ghi chú
 
 - Database file (`news_website_v2.db`) sẽ được tạo tự động khi chạy lần đầu
 - Seed data sẽ được tạo tự động nếu database trống
 - Để reset database, xóa file `news_website_v2.db` và chạy lại
 
-## 🔒 Bảo mật
+## Bảo mật
 
 - Mật khẩu được hash bằng Werkzeug
 - Session management cho đăng nhập
 - Validation input forms
 - CSRF protection (có thể thêm Flask-WTF)
 
-## 📞 Liên hệ
+## Liên hệ
 
-Nếu có thắc mắc hoặc vấn đề, vui lòng liên hệ qua email: contact@tintucdoisong.com
+Nếu có thắc mắc hoặc vấn đề, vui lòng liên hệ qua email: laodai12035@gmail.com
 
 ---
 
