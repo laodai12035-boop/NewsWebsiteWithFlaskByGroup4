@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Bài viết của tôi - Báo Mới Đây !!!{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="dashboard-header">
+        <div>
+            <h1>Bài viết của tôi</h1>
+            <p>Quản lý bài viết theo trạng thái: draft / pending / published / rejected.</p>
+        </div>
+        <div class="dashboard-actions">
+            <a href="{{ url_for('dashboard.create_article') }}" class="btn btn-primary">+ Viết bài</a>
+        </div>
+    </div>
+
+    <section class="search-section">
+        <form method="GET" action="{{ url_for('dashboard.my_articles') }}" class="search-form">
+            <input type="text" name="q" placeholder="Tìm theo tiêu đề/nội dung..." value="{{ q or '' }}">
+            <select name="status">
+                <option value="">-- Tất cả trạng thái --</option>
+                <option value="draft" {% if status == 'draft' %}selected{% endif %}>Draft</option>
+                <option value="pending" {% if status == 'pending' %}selected{% endif %}>Pending</option>
+                <option value="published" {% if status == 'published' %}selected{% endif %}>Published</option>
+                <option value="rejected" {% if status == 'rejected' %}selected{% endif %}>Rejected</option>
+                <option value="archived" {% if status == 'archived' %}selected{% endif %}>Archived</option>
+            </select>
+            <select name="sort">
+                <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Mới nhất</option>
+                <option value="oldest" {% if sort == 'oldest' %}selected{% endif %}>Cũ nhất</option>
+                <option value="views" {% if sort == 'views' %}selected{% endif %}>Nhiều lượt xem</option>
+            </select>
+            <button type="submit" class="btn btn-primary">Lọc</button>
+        </form>
+    </section>
+
+    <div class="dashboard-articles">
+        {% if articles %}
+        <div class="articles-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tiêu đề</th>
+                        <th>Danh mục</th>
+                        <th>Ngày tạo</th>
+                        <th>Trạng thái</th>
+                        <th>Lượt xem</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for article in articles %}
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('main.article_detail', article_id=article.id) }}">{{ article.title }}</a>
+                            {% if article.review_note %}
+                                <div class="small-muted">Ghi chú: {{ article.review_note }}</div>
+                            {% endif %}
+                        </td>
+                        <td>{{ article.category.name }}</td>
+                        <td>{{ article.created_at.strftime('%d/%m/%Y') }}</td>
+                        <td>
+                            <span class="badge badge-status badge-{{ article.status }}">{{ article.status }}</span>
+                        </td>
+                        <td>{{ article.views }}</td>
+                        <td class="actions">
+                            <a href="{{ url_for('dashboard.edit_article', article_id=article.id) }}" class="btn btn-sm btn-primary">Sửa</a>
+
+                            {% if article.status in ['draft', 'rejected'] %}
+                            <form method="POST" action="{{ url_for('dashboard.submit_article', article_id=article.id) }}" style="display:inline;">
+                                <button type="submit" class="btn btn-sm btn-secondary">Nộp duyệt</button>
+                            </form>
+                            {% endif %}
+
+                            <form method="POST" action="{{ url_for('dashboard.delete_article', article_id=article.id) }}" style="display:inline;" onsubmit="return confirm('Xóa bài viết này?');">
+                                <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="no-articles">Chưa có bài viết nào. <a href="{{ url_for('dashboard.create_article') }}">Viết bài đầu tiên</a></p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

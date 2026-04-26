@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Quản lý Danh mục - Báo Mới Đây !!!{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="dashboard-header">
+        <div>
+            <h1>Quản lý danh mục</h1>
+            <p>CRUD danh mục, bật/tắt active để hiển thị trên trang chủ.</p>
+        </div>
+        <div class="dashboard-actions">
+            <a class="btn btn-primary" href="{{ url_for('admin.category_create') }}">+ Tạo danh mục</a>
+        </div>
+    </div>
+
+    <section class="search-section">
+        <form method="GET" action="{{ url_for('admin.categories_list') }}" class="search-form">
+            <input type="text" name="q" placeholder="Tìm danh mục..." value="{{ q or '' }}">
+            <select name="active">
+                <option value="">-- Active? --</option>
+                <option value="true" {% if active == 'true' %}selected{% endif %}>active</option>
+                <option value="false" {% if active == 'false' %}selected{% endif %}>inactive</option>
+            </select>
+            <button class="btn btn-primary" type="submit">Lọc</button>
+        </form>
+    </section>
+
+    <div class="dashboard-articles">
+        <div class="articles-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tên</th>
+                        <th>Mô tả</th>
+                        <th>Active</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in categories %}
+                    <tr>
+                        <td>{{ c.name }}</td>
+                        <td>{{ c.description or '' }}</td>
+                        <td>
+                            {% if c.active %}
+                            <span class="badge badge-success">active</span>
+                            {% else %}
+                            <span class="badge badge-warning">inactive</span>
+                            {% endif %}
+                        </td>
+                        <td class="actions">
+                            <a class="btn btn-sm btn-primary" href="{{ url_for('admin.category_edit', category_id=c.id) }}">Sửa</a>
+                            <form method="POST" action="{{ url_for('admin.category_delete', category_id=c.id) }}" style="display:inline;" onsubmit="return confirm('Xóa danh mục này?');">
+                                <button class="btn btn-sm btn-danger" type="submit">Xóa</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

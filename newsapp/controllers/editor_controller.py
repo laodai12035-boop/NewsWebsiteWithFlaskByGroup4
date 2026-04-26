@@ -35,7 +35,7 @@ def review_queue():
     articles = query.all()
     categories = Category.query.filter_by(active=True).order_by(Category.name.asc()).all()
     return render_template(
-        "editor_review.html",
+        "editor/review.html",
         articles=articles,
         categories=categories,
         q=q,
@@ -102,7 +102,7 @@ def review_comments():
 
     comments = query.order_by(Comment.created_at.desc()).all()
     return render_template(
-        "editor_comments.html",
+        "editor/comments.html",
         comments=comments,
         status_filter=status_filter,
         q=q,

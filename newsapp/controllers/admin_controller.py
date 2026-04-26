@@ -27,7 +27,7 @@ def users_list():
         query = query.filter(User.active == (active == "true"))
 
     users = query.order_by(User.created_at.desc()).all()
-    return render_template("admin_users.html", users=users, q=q, role=role, active=active)
+    return render_template("admin/users.html", users=users, q=q, role=role, active=active)
 
 
 @bp.route("/users/create", methods=["GET", "POST"])
@@ -57,7 +57,7 @@ def user_create():
         flash("Tạo user thành công.", "success")
         return redirect(url_for("admin.users_list"))
 
-    return render_template("admin_user_form.html", user=None, roles=sorted(UserRole.ALL))
+    return render_template("admin/user_form.html", user=None, roles=sorted(UserRole.ALL))
 
 
 @bp.route("/users/<int:user_id>/edit", methods=["GET", "POST"])
@@ -84,7 +84,7 @@ def user_edit(user_id: int):
         flash("Cập nhật user thành công.", "success")
         return redirect(url_for("admin.users_list"))
 
-    return render_template("admin_user_form.html", user=user, roles=sorted(UserRole.ALL))
+    return render_template("admin/user_form.html", user=user, roles=sorted(UserRole.ALL))
 
 
 @bp.route("/users/<int:user_id>/delete", methods=["POST"])
@@ -111,7 +111,7 @@ def categories_list():
         query = query.filter(Category.active == (active == "true"))
 
     categories = query.order_by(Category.name.asc()).all()
-    return render_template("admin_categories.html", categories=categories, q=q, active=active)
+    return render_template("admin/categories.html", categories=categories, q=q, active=active)
 
 
 @bp.route("/categories/create", methods=["GET", "POST"])
@@ -135,7 +135,7 @@ def category_create():
         flash("Tạo danh mục thành công.", "success")
         return redirect(url_for("admin.categories_list"))
 
-    return render_template("admin_category_form.html", category=None)
+    return render_template("admin/category_form.html", category=None)
 
 
 @bp.route("/categories/<int:category_id>/edit", methods=["GET", "POST"])
@@ -149,7 +149,7 @@ def category_edit(category_id: int):
         db.session.commit()
         flash("Cập nhật danh mục thành công.", "success")
         return redirect(url_for("admin.categories_list"))
-    return render_template("admin_category_form.html", category=category)
+    return render_template("admin/category_form.html", category=category)
 
 
 @bp.route("/categories/<int:category_id>/delete", methods=["POST"])

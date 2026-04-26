@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Báo Mới Đây !!!{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="dashboard-header">
+        <h1>Dashboard</h1>
+        <p>Xin chào, <strong>{{ user.username }}</strong> ({{ user.role }})</p>
+    </div>
+
+    <div class="dashboard-stats">
+        <div class="stat-card">
+            <h3>{{ pending_count or 0 }}</h3>
+            <p>Bài chờ duyệt</p>
+            {% if user.role in ['editor', 'admin'] %}
+                <a class="btn btn-primary btn-sm" href="{{ url_for('editor.review_queue') }}">Mở hàng duyệt</a>
+            {% endif %}
+        </div>
+        {% if user.role == 'admin' %}
+        <div class="stat-card">
+            <h3>{{ users_count or 0 }}</h3>
+            <p>Tài khoản</p>
+            <a class="btn btn-primary btn-sm" href="{{ url_for('admin.users_list') }}">Quản lý users</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="dashboard-actions">
+        <a class="btn btn-secondary" href="{{ url_for('dashboard.my_articles') }}">Bài viết của tôi</a>
+        <a class="btn btn-primary" href="{{ url_for('dashboard.create_article') }}">+ Viết bài</a>
+
+        {% if user.role == 'admin' %}
+        <a class="btn btn-secondary" href="{{ url_for('admin.categories_list') }}">Quản lý danh mục</a>
+        <form method="POST" action="{{ url_for('admin.backup') }}" style="display:inline;">
+            <button class="btn btn-secondary" type="submit">Backup DB</button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

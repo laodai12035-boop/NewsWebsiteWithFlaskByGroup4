@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}{% if article %}Chỉnh sửa bài viết{% else %}Tạo bài viết mới{% endif %} - Báo Mới Đây !!!{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="form-header">
+        <h1>{% if article %}Chỉnh sửa bài viết{% else %}Tạo bài viết mới{% endif %}</h1>
+        <a href="{{ url_for('dashboard.my_articles') }}" class="btn btn-secondary">← Quay lại</a>
+    </div>
+    
+    <div class="form-container">
+        <form method="POST" class="article-form" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="title">Tiêu đề bài viết *</label>
+                <input type="text" id="title" name="title" value="{{ article.title if article else '' }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="category_id">Danh mục *</label>
+                <select id="category_id" name="category_id" required>
+                    <option value="">-- Chọn danh mục --</option>
+                    {% for category in categories %}
+                    <option value="{{ category.id }}" {% if article and article.category_id == category.id %}selected{% endif %}>
+                        {{ category.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="excerpt">Tóm tắt</label>
+                <textarea id="excerpt" name="excerpt" rows="3">{{ article.excerpt if article else '' }}</textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="image_file">Tải ảnh (png/jpg/jpeg/webp/gif, tối đa 2MB)</label>
+                <input type="file" id="image_file" name="image_file" accept=".png,.jpg,.jpeg,.webp,.gif">
+                {% if article and article.image_ref %}
+                    {% set img = (article.image_ref|image_src) %}
+                    {% if img %}
+                    <div class="image-preview">
+                        <img src="{{ img }}" alt="Ảnh bài viết">
+                    </div>
+                    {% endif %}
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="image_url">Hoặc nhập URL hình ảnh</label>
+                <input type="url" id="image_url" name="image_url" value="{{ article.image_ref if article else '' }}" placeholder="https://example.com/image.jpg">
+            </div>
+            
+            <div class="form-group">
+                <label for="content">Nội dung bài viết *</label>
+                <textarea id="content" name="content" rows="15" required>{{ article.content if article else '' }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="inline_image_file">Chèn hình ảnh vào nội dung</label>
+                <input type="file" id="inline_image_file" accept=".png,.jpg,.jpeg,.webp,.gif">
+                <p class="small-muted">Ảnh sẽ được upload và tự động chèn thẻ &lt;img&gt; vào vị trí con trỏ trong nội dung.</p>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-secondary" name="action" value="save">Lưu nháp</button>
+                <button type="submit" class="btn btn-primary" name="action" value="submit">Gửi duyệt</button>
+                <a href="{{ url_for('dashboard.my_articles') }}" class="btn btn-secondary">Hủy</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

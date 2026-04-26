@@ -9,10 +9,9 @@ from flask import current_app
 
 def backup_database() -> str:
     """Create a timestamped backup of the SQLite database file."""
-    base_dir = current_app.config["BASE_DIR"]
     db_path = current_app.config["SQLITE_DB_PATH"]
 
-    backups_dir = os.path.join(base_dir, "backups")
+    backups_dir = os.path.join(current_app.instance_path, "backups")
     os.makedirs(backups_dir, exist_ok=True)
 
     ts = datetime.utcnow().strftime("%Y%m%d_%H%M%S")

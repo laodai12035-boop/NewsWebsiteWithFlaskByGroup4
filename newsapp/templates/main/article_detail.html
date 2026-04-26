@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block title %}{{ article.title }} - Báo Mới Đây !!!{% endblock %}
+
+{% block content %}
+<div class="container">
+    <article class="article-detail">
+        <div class="article-header">
+            <div class="article-meta">
+                <span class="category-badge">{{ article.category.name }}</span>
+                <span class="date">{{ article.created_at.strftime('%d/%m/%Y %H:%M') }}</span>
+                <span class="views">👁️ {{ article.views }} lượt xem</span>
+            </div>
+            <h1 class="article-title">{{ article.title }}</h1>
+            <div class="article-author">
+                <span>Tác giả: <strong>{{ article.author.username }}</strong></span>
+            </div>
+        </div>
+        
+        {% set img = (article.image_ref|image_src) %}
+        {% if img %}
+        <div class="article-image-large">
+            <img src="{{ img }}" alt="{{ article.title }}">
+        </div>
+        {% endif %}
+        
+        {% if article.summary_text %}
+        <section class="article-summary">
+            <h2>Tóm tắt nhanh</h2>
+            <p>{{ article.summary_text }}</p>
+        </section>
+        {% elif enable_ai_summary and session.user_id and session.role in ['admin', 'editor', 'author'] %}
+        <section class="article-summary">
+            <button id="btn-generate-summary"
+                    data-url="{{ url_for('dashboard.summarize_article', article_id=article.id) }}"
+                    class="btn btn-secondary">
+                Tạo tóm tắt (AI)
+            </button>
+            <p class="small-muted">Dùng OpenAI để tạo tóm tắt, chỉ dành cho tác giả/biên tập/Admin.</p>
+        </section>
+        {% endif %}
+
+        <div class="article-body">
+            <p class="article-excerpt">{{ article.excerpt or '' }}</p>
+            <div class="article-content-text">
+                {{ article.content | replace('\n', '<br>') | safe }}
+            </div>
+        </div>
+        
+        <div class="article-actions">
+            <a href="{{ url_for('main.index') }}" class="btn btn-secondary">← Quay lại trang chủ</a>
+            <button id="btn-play-audio" class="btn btn-secondary">
+                🔊 Nghe bài viết
+            </button>
+
+            <audio id="audio-player" controls style="width: 100%; margin-top: 10px; display:none;">
+                <source id="audio-source" src="" type="audio/mpeg">
+            </audio>
+
+            <script>
+            (function () {
+                const btn = document.getElementById("btn-play-audio");
+                const audio = document.getElementById("audio-player");
+                const source = document.getElementById("audio-source");
+                let loading = false;
+
+                btn.addEventListener("click", function () {
+                    // Nếu đang loading thì bỏ qua
+                    if (loading) return;
+
+                    // Kiểm tra bằng getAttribute vì .src luôn trả URL đầy đủ
+                    if (!source.getAttribute("src")) {
+                        loading = true;
+                        btn.textContent = "⏳ Đang tạo audio...";
+                        btn.disabled = true;
+
+                        source.src = "{{ url_for('main.article_tts', article_id=article.id) }}";
+                        audio.load();
+
+                        audio.addEventListener("canplaythrough", function onReady() {
+                            audio.removeEventListener("canplaythrough", onReady);
+                            loading = false;
+                            btn.textContent = "🔊 Nghe bài viết";
+                            btn.disabled = false;
+                            audio.style.display = "block";
+                            audio.play();
+                        }, { once: true });
+
+                        audio.addEventListener("error", function onErr() {
+                            audio.removeEventListener("error", onErr);
+                            loading = false;
+                            btn.textContent = "❌ Lỗi tạo audio – thử lại";
+                            btn.disabled = false;
+                            // Reset source để lần sau bấm lại sẽ thử lại
+                            source.removeAttribute("src");
+                        }, { once: true });
+
+                        return;
+                    }
+
+                    audio.style.display = "block";
+                    audio.play();
+                });
+            })();
+            </script>
+            {% if session.user_id %}
+                <form method="POST" action="{{ url_for('main.toggle_favorite', article_id=article.id) }}" style="display:inline;">
+                    <button type="submit" class="btn {% if is_favorited %}btn-secondary{% else %}btn-primary{% endif %}">
+                        {% if is_favorited %}★ Đã lưu yêu thích{% else %}☆ Lưu vào yêu thích{% endif %}
+                    </button>
+                </form>
+                {% if session.role in ['admin', 'editor'] %}
+                    <a href="{{ url_for('dashboard.edit_article', article_id=article.id) }}" class="btn btn-primary">Chỉnh sửa</a>
+                {% endif %}
+                {% if session.role in ['admin', 'editor'] and article.status == 'published' %}
+                    <form method="POST" action="{{ url_for('editor.unpublish_article', article_id=article.id) }}" style="display:inline;" onsubmit="return confirm('Gỡ bài khỏi trang chủ?');">
+                        <button type="submit" class="btn btn-danger">Gỡ bài</button>
+                    </form>
+                {% endif %}
+            {% endif %}
+        </div>
+    </article>
+
+    <!-- Comments -->
+    <section class="comments-section">
+        <h2>Bình luận</h2>
+
+        {% if session.user_id %}
+        <form method="POST" action="{{ url_for('main.add_comment', article_id=article.id) }}" class="comment-form">
+            <div class="form-group">
+                <textarea name="content" rows="4" placeholder="Chia sẻ suy nghĩ của bạn..." required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Gửi bình luận</button>
+        </form>
+        {% else %}
+        <p class="no-articles">
+            Vui lòng <a href="{{ url_for('auth.login') }}">đăng nhập</a> để bình luận và lưu bài viết vào mục yêu thích.
+        </p>
+        {% endif %}
+
+        <div class="comments-list">
+            {% for c in approved_comments %}
+            <div class="comment-item">
+                <div class="comment-header">
+                    <span class="comment-author">{{ c.author.username }}</span>
+                    <span class="comment-date">{{ c.created_at.strftime('%d/%m/%Y %H:%M') }}</span>
+                </div>
+                <div class="comment-body">
+                    {{ c.content | e | replace('\n', '<br>') | safe }}
+                </div>
+            </div>
+            {% else %}
+            <p class="no-articles">Chưa có bình luận nào. Hãy là người đầu tiên bình luận!</p>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}

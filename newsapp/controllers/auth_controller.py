@@ -37,7 +37,7 @@ def register():
         flash("Đăng ký thành công! Vui lòng đăng nhập.", "success")
         return redirect(url_for("auth.login"))
 
-    return render_template("register.html")
+    return render_template("auth/register.html")
 
 
 @bp.route("/login", methods=["GET", "POST"])
@@ -49,7 +49,7 @@ def login():
         user = auth_service.verify_login(username=username, password=password)
         if not user:
             flash("Tên người dùng / mật khẩu không đúng hoặc tài khoản bị khóa.", "error")
-            return render_template("login.html")
+            return render_template("auth/login.html")
 
         session["user_id"] = user.id
         session["username"] = user.username
@@ -57,7 +57,7 @@ def login():
         flash("Đăng nhập thành công!", "success")
         return redirect(url_for("dashboard.dashboard_home"))
 
-    return render_template("login.html")
+    return render_template("auth/login.html")
 
 
 @bp.route("/logout")

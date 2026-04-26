@@ -49,8 +49,7 @@ def save_image_upload(file: FileStorage | None) -> UploadResult:
     ext = filename.rsplit(".", 1)[1].lower()
     new_name = f"{uuid.uuid4().hex}.{ext}"
 
-    base_dir = current_app.config["BASE_DIR"]
-    upload_dir = os.path.join(base_dir, "static", "uploads")
+    upload_dir = os.path.join(current_app.static_folder, "uploads")
     os.makedirs(upload_dir, exist_ok=True)
 
     abs_path = os.path.join(upload_dir, new_name)
