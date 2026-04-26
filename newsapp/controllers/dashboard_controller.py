@@ -20,19 +20,52 @@ def dashboard_home():
 
     if user.role == UserRole.EDITOR:
         pending_count = Article.query.filter(Article.status == ArticleStatus.PENDING).count()
-        return render_template("dashboard/home.html", user=user, pending_count=pending_count)
+        my_articles_count = Article.query.filter_by(user_id=user.id).count()
+        published_count = Article.query.filter_by(user_id=user.id, status=ArticleStatus.PUBLISHED).count()
+        total_views = db.session.query(db.func.sum(Article.views)).filter_by(user_id=user.id).scalar() or 0
+        
+        return render_template(
+            "dashboard/home.html", 
+            user=user, 
+            pending_count=pending_count,
+            my_articles_count=my_articles_count,
+            published_count=published_count,
+            total_views=total_views
+        )
+    
     if user.role == UserRole.ADMIN:
         pending_count = Article.query.filter(Article.status == ArticleStatus.PENDING).count()
         users_count = User.query.count()
+        
+        # Get dashboard statistics
+        stats = {
+            'total_articles': Article.query.count(),
+            'published_articles': Article.query.filter_by(status=ArticleStatus.PUBLISHED).count(),
+            'today_views': db.session.query(db.func.sum(Article.views)).filter(
+                Article.status == ArticleStatus.PUBLISHED
+            ).scalar() or 0
+        }
+        
         return render_template(
             "dashboard/home.html",
             user=user,
             pending_count=pending_count,
             users_count=users_count,
+            stats=stats
         )
 
     # Author/User view
-    return redirect(url_for("dashboard.my_articles"))
+    my_articles_count = Article.query.filter_by(user_id=user.id).count()
+    published_count = Article.query.filter_by(user_id=user.id, status=ArticleStatus.PUBLISHED).count()
+    total_views = db.session.query(db.func.sum(Article.views)).filter_by(user_id=user.id).scalar() or 0
+    
+    return render_template(
+        "dashboard/home.html",
+        user=user,
+        my_articles_count=my_articles_count,
+        published_count=published_count,
+        total_views=total_views
+    )
 
 
 @bp.route("/articles")

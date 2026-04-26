@@ -66,3 +66,38 @@ def logout():
     flash("Đã đăng xuất thành công!", "info")
     return redirect(url_for("main.index"))
 
+
+@bp.route("/change-password", methods=["GET", "POST"])
+def change_password():
+    from ..utils.auth import get_current_user, login_required
+    
+    user = get_current_user()
+    if not user:
+        flash("Vui lòng đăng nhập để đổi mật khẩu.", "error")
+        return redirect(url_for("auth.login"))
+    
+    if request.method == "POST":
+        current_password = request.form.get("current_password", "")
+        new_password = request.form.get("new_password", "")
+        confirm_password = request.form.get("confirm_password", "")
+        
+        if not current_password or not new_password or not confirm_password:
+            flash("Vui lòng nhập đầy đủ thông tin.", "error")
+            return redirect(url_for("auth.change_password"))
+        
+        if new_password != confirm_password:
+            flash("Mật khẩu mới không khớp!", "error")
+            return redirect(url_for("auth.change_password"))
+        
+        # Verify current password
+        if not auth_service.verify_login(username=user.username, password=current_password):
+            flash("Mật khẩu hiện tại không đúng!", "error")
+            return redirect(url_for("auth.change_password"))
+        
+        # Update password
+        auth_service.set_password(user=user, new_password=new_password)
+        flash("Đổi mật khẩu thành công!", "success")
+        return redirect(url_for("main.profile_dashboard"))
+    
+    return render_template("auth/change_password.html")
+

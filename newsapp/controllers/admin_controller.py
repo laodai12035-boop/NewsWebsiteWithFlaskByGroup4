@@ -1,9 +1,11 @@
 from __future__ import annotations
 
-from flask import Blueprint, flash, redirect, render_template, request, send_file, url_for
+from flask import Blueprint, flash, jsonify, redirect, render_template, request, send_file, url_for
+from sqlalchemy import func, extract
+from datetime import datetime, timedelta
 
 from ..extensions import db
-from ..models import Category, User, UserRole
+from ..models import Article, ArticleStatus, Category, User, UserRole
 from ..services import admin_service, auth_service
 from ..utils.auth import roles_required
 
@@ -176,4 +178,215 @@ def backup():
 
     flash("Đã tạo backup database.", "success")
     return send_file(path, as_attachment=True)
+
+
+@bp.route("/analytics")
+@roles_required(UserRole.ADMIN)
+def analytics():
+    # Get basic statistics
+    stats = get_dashboard_stats()
+    
+    return render_template("admin/analytics.html", stats=stats)
+
+
+@bp.route("/api/stats")
+@roles_required(UserRole.ADMIN)
+def api_stats():
+    """API endpoint for real-time statistics"""
+    time_range = request.args.get('range', '30', type=int)
+    stats = get_dashboard_stats(time_range)
+    return jsonify(stats)
+
+
+@bp.route("/api/articles-over-time")
+@roles_required(UserRole.ADMIN)
+def api_articles_over_time():
+    """API endpoint for articles timeline data"""
+    days = request.args.get('days', 30, type=int)
+    
+    # Get articles created in the last N days
+    start_date = datetime.now() - timedelta(days=days)
+    
+    # Query articles grouped by date and status
+    articles_data = db.session.query(
+        func.date(Article.created_at).label('date'),
+        Article.status,
+        func.count(Article.id).label('count')
+    ).filter(
+        Article.created_at >= start_date
+    ).group_by(
+        func.date(Article.created_at),
+        Article.status
+    ).order_by('date').all()
+    
+    # Format data for Chart.js
+    dates = []
+    published_data = []
+    draft_data = []
+    pending_data = []
+    
+    # Create date range
+    current_date = start_date.date()
+    end_date = datetime.now().date()
+    
+    while current_date <= end_date:
+        dates.append(current_date.strftime('%Y-%m-%d'))
+        
+        # Find counts for this date
+        published_count = 0
+        draft_count = 0
+        pending_count = 0
+        
+        for item in articles_data:
+            if item.date == current_date:
+                if item.status == ArticleStatus.PUBLISHED:
+                    published_count = item.count
+                elif item.status == ArticleStatus.DRAFT:
+                    draft_count = item.count
+                elif item.status == ArticleStatus.PENDING:
+                    pending_count = item.count
+        
+        published_data.append(published_count)
+        draft_data.append(draft_count)
+        pending_data.append(pending_count)
+        
+        current_date += timedelta(days=1)
+    
+    return jsonify({
+        'labels': dates,
+        'datasets': [
+            {
+                'label': 'Published',
+                'data': published_data,
+                'borderColor': '#3b82f6',
+                'backgroundColor': 'rgba(59, 130, 246, 0.1)'
+            },
+            {
+                'label': 'Draft',
+                'data': draft_data,
+                'borderColor': '#f59e0b',
+                'backgroundColor': 'rgba(245, 158, 11, 0.1)'
+            },
+            {
+                'label': 'Pending',
+                'data': pending_data,
+                'borderColor': '#ef4444',
+                'backgroundColor': 'rgba(239, 68, 68, 0.1)'
+            }
+        ]
+    })
+
+
+@bp.route("/api/category-views")
+@roles_required(UserRole.ADMIN)
+def api_category_views():
+    """API endpoint for views by category"""
+    
+    # Query total views by category
+    category_data = db.session.query(
+        Category.name,
+        func.sum(Article.views).label('total_views')
+    ).join(
+        Article, Category.id == Article.category_id
+    ).filter(
+        Article.status == ArticleStatus.PUBLISHED
+    ).group_by(
+        Category.name
+    ).order_by(
+        func.sum(Article.views).desc()
+    ).limit(10).all()
+    
+    labels = [item.name for item in category_data]
+    data = [int(item.total_views or 0) for item in category_data]
+    
+    return jsonify({
+        'labels': labels,
+        'data': data
+    })
+
+
+@bp.route("/api/user-growth")
+@roles_required(UserRole.ADMIN)
+def api_user_growth():
+    """API endpoint for user growth over time"""
+    months = request.args.get('months', 6, type=int)
+    
+    # Get user registrations by month
+    start_date = datetime.now() - timedelta(days=months * 30)
+    
+    user_data = db.session.query(
+        func.date_trunc('month', User.created_at).label('month'),
+        func.count(User.id).label('count')
+    ).filter(
+        User.created_at >= start_date
+    ).group_by(
+        func.date_trunc('month', User.created_at)
+    ).order_by('month').all()
+    
+    labels = []
+    data = []
+    
+    for item in user_data:
+        labels.append(item.month.strftime('%B %Y'))
+        data.append(item.count)
+    
+    return jsonify({
+        'labels': labels,
+        'data': data
+    })
+
+
+@bp.route("/api/top-articles")
+@roles_required(UserRole.ADMIN)
+def api_top_articles():
+    """API endpoint for top performing articles"""
+    limit = request.args.get('limit', 10, type=int)
+    
+    top_articles = db.session.query(
+        Article.title,
+        Article.views
+    ).filter(
+        Article.status == ArticleStatus.PUBLISHED
+    ).order_by(
+        Article.views.desc()
+    ).limit(limit).all()
+    
+    labels = [article.title[:50] + '...' if len(article.title) > 50 else article.title for article in top_articles]
+    data = [article.views for article in top_articles]
+    
+    return jsonify({
+        'labels': labels,
+        'data': data
+    })
+
+
+def get_dashboard_stats(days=30):
+    """Get dashboard statistics"""
+    start_date = datetime.now() - timedelta(days=days)
+    
+    # Total articles
+    total_articles = Article.query.count()
+    
+    # Published articles
+    published_articles = Article.query.filter_by(status=ArticleStatus.PUBLISHED).count()
+    
+    # Active users (users who logged in or created content in the last N days)
+    active_users = User.query.filter(
+        User.created_at >= start_date
+    ).count()
+    
+    # Today's views
+    today = datetime.now().date()
+    today_views = db.session.query(
+        func.sum(Article.views)
+    ).filter(
+        Article.status == ArticleStatus.PUBLISHED
+    ).scalar() or 0
+    
+    return {
+        'total_articles': total_articles,
+        'published_articles': published_articles,
+        'active_users': active_users,
+        'today_views': int(today_views)
+    }
 

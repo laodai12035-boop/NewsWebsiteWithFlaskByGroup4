@@ -28,20 +28,57 @@
                             <li><a href="{{ url_for('main.my_favorites') }}">Yêu thích</a></li>
                             <li><a href="{{ url_for('main.profile_dashboard') }}">Profile</a></li>
                             <li><a href="{{ url_for('dashboard.dashboard_home') }}">Dashboard</a></li>
+                            
+                            <!-- Quản trị Dropdown -->
                             {% if session.role in ['editor', 'admin'] %}
-                                <li><a href="{{ url_for('editor.review_queue') }}">Duyệt bài</a></li>
-                                <li><a href="{{ url_for('editor.review_comments') }}">Duyệt bình luận</a></li>
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle">Quản trị ▼</a>
+                                <ul class="dropdown-menu">
+                                    {% if session.role in ['editor', 'admin'] %}
+                                        <li><a href="{{ url_for('editor.review_queue') }}">📝 Duyệt bài</a></li>
+                                        <li><a href="{{ url_for('editor.review_comments') }}">💬 Duyệt bình luận</a></li>
+                                    {% endif %}
+                                    {% if session.role == 'admin' %}
+                                        <li><a href="{{ url_for('admin.users_list') }}">� Users</a></li>
+                                        <li><a href="{{ url_for('admin.categories_list') }}">📁 Danh mục</a></li>
+                                        <li><a href="{{ url_for('admin.backup') }}" method="post">💾 Backup DB</a></li>
+                                    {% endif %}
+                                </ul>
+                            </li>
                             {% endif %}
-                            {% if session.role == 'admin' %}
-                                <li><a href="{{ url_for('admin.users_list') }}">Users</a></li>
-                                <li><a href="{{ url_for('admin.categories_list') }}">Danh mục</a></li>
-                            {% endif %}
-                            <li><a href="{{ url_for('auth.logout') }}">Đăng xuất ({{ session.username }} - {{ session.role }})</a></li>
                         {% else %}
                             <li><a href="{{ url_for('auth.login') }}">Đăng nhập</a></li>
                             <li><a href="{{ url_for('auth.register') }}">Đăng ký</a></li>
                         {% endif %}
                     </ul>
+                    
+                    <!-- User Dropdown -->
+                    {% if session.user_id %}
+                    <div class="user-dropdown">
+                        <button class="user-dropdown-toggle">
+                            <div class="user-avatar">{{ session.username[0]|upper }}</div>
+                            <span class="user-name">{{ session.username }}</span>
+                            <span class="dropdown-arrow">▼</span>
+                        </button>
+                        <ul class="user-dropdown-menu">
+                            <li class="user-info">
+                                <div class="user-avatar-large">{{ session.username[0]|upper }}</div>
+                                <div class="user-details">
+                                    <div class="user-name">{{ session.username }}</div>
+                                    <div class="user-role">{{ session.role|title }}</div>
+                                </div>
+                            </li>
+                            <li class="divider"></li>
+                            <li><a href="{{ url_for('main.profile_dashboard') }}">👤 Profile</a></li>
+                            <li><a href="{{ url_for('auth.change_password') }}">🔐 Đổi mật khẩu</a></li>
+                            {% if session.role == 'admin' %}
+                            <li><a href="{{ url_for('admin.analytics') }}">📊 Analytics</a></li>
+                            {% endif %}
+                            <li class="divider"></li>
+                            <li><a href="{{ url_for('auth.logout') }}" class="logout-btn">🚪 Đăng xuất</a></li>
+                        </ul>
+                    </div>
+                    {% endif %}
                 </nav>
                 <div class="mobile-menu-toggle">
                     <span></span>

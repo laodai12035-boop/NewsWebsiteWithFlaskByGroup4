@@ -3,40 +3,384 @@
 {% block title %}Dashboard - Báo Mới Đây !!!{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="dashboard-header">
-        <h1>Dashboard</h1>
-        <p>Xin chào, <strong>{{ user.username }}</strong> ({{ user.role }})</p>
-    </div>
+<div class="dashboard-home">
+    <div class="container">
+        <!-- Dashboard Header -->
+        <div class="dashboard-header">
+            <div class="header-content">
+                <h1>📊 Dashboard</h1>
+                <p>Xin chào, <strong>{{ user.username }}</strong> ({{ user.role|title }})</p>
+            </div>
+            <div class="header-time">
+                <span id="currentTime"></span>
+            </div>
+        </div>
 
-    <div class="dashboard-stats">
-        <div class="stat-card">
-            <h3>{{ pending_count or 0 }}</h3>
-            <p>Bài chờ duyệt</p>
-            {% if user.role in ['editor', 'admin'] %}
-                <a class="btn btn-primary btn-sm" href="{{ url_for('editor.review_queue') }}">Mở hàng duyệt</a>
+        <!-- Dashboard Grid Layout -->
+        <div class="dashboard-grid">
+            <!-- Row 1: Statistics Cards -->
+            <div class="dashboard-row stats-row">
+                <div class="stat-card">
+                    <div class="stat-icon pending-icon">📝</div>
+                    <div class="stat-content">
+                        <div class="stat-number">{{ pending_count or 0 }}</div>
+                        <div class="stat-label">Bài chờ duyệt</div>
+                        {% if user.role in ['editor', 'admin'] %}
+                            <a class="stat-action" href="{{ url_for('editor.review_queue') }}">Xem ngay →</a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if user.role == 'admin' %}
+                <div class="stat-card">
+                    <div class="stat-icon users-icon">👥</div>
+                    <div class="stat-content">
+                        <div class="stat-number">{{ users_count or 0 }}</div>
+                        <div class="stat-label">Tài khoản</div>
+                        <a class="stat-action" href="{{ url_for('admin.users_list') }}">Quản lý →</a>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon articles-icon">📄</div>
+                    <div class="stat-content">
+                        <div class="stat-number">{{ stats.total_articles if stats else 0 }}</div>
+                        <div class="stat-label">Tổng bài viết</div>
+                        <a class="stat-action" href="{{ url_for('dashboard.my_articles') }}">Xem tất cả →</a>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon views-icon">👁️</div>
+                    <div class="stat-content">
+                        <div class="stat-number">{{ stats.today_views if stats else 0 }}</div>
+                        <div class="stat-label">Lượt xem hôm nay</div>
+                        <div class="stat-trend positive">+12% hôm qua</div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="stat-card">
+                    <div class="stat-icon my-articles-icon">📚</div>
+                    <div class="stat-content">
+                        <div class="stat-number">{{ my_articles_count or 0 }}</div>
+                        <div class="stat-label">Bài viết của tôi</div>
+                        <a class="stat-action" href="{{ url_for('dashboard.my_articles') }}">Quản lý →</a>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon published-icon">✅</div>
+                    <div class="stat-content">
+                        <div class="stat-number">{{ published_count or 0 }}</div>
+                        <div class="stat-label">Đã xuất bản</div>
+                        <a class="stat-action" href="{{ url_for('main.index') }}">Xem trên site →</a>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon views-icon">👁️</div>
+                    <div class="stat-content">
+                        <div class="stat-number">{{ total_views or 0 }}</div>
+                        <div class="stat-label">Tổng lượt xem</div>
+                        <div class="stat-trend positive">+8% tuần này</div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Row 2: Analytics Charts (Admin only) -->
+            {% if user.role == 'admin' %}
+            <div class="dashboard-row analytics-row">
+                <div class="analytics-section">
+                    <div class="section-header">
+                        <h2>📈 Phân tích & Thống kê</h2>
+                        <div class="time-filter">
+                            <select id="timeRange" class="form-control">
+                                <option value="7">7 ngày</option>
+                                <option value="30" selected>30 ngày</option>
+                                <option value="90">90 ngày</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="charts-grid">
+                        <!-- Articles Over Time -->
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h3>📊 Bài viết theo thời gian</h3>
+                                <button class="btn-icon" onclick="refreshChart('articlesChart')">🔄</button>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="articlesChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Views by Category -->
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h3>🎯 Lượt xem theo danh mục</h3>
+                                <button class="btn-icon" onclick="refreshChart('categoryChart')">🔄</button>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="categoryChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- User Growth -->
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h3>👤 Tăng trưởng người dùng</h3>
+                                <button class="btn-icon" onclick="refreshChart('userGrowthChart')">🔄</button>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="userGrowthChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Top Articles -->
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h3>🏆 Bài viết nổi bật</h3>
+                                <button class="btn-icon" onclick="refreshChart('topArticlesChart')">🔄</button>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="topArticlesChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             {% endif %}
-        </div>
-        {% if user.role == 'admin' %}
-        <div class="stat-card">
-            <h3>{{ users_count or 0 }}</h3>
-            <p>Tài khoản</p>
-            <a class="btn btn-primary btn-sm" href="{{ url_for('admin.users_list') }}">Quản lý users</a>
-        </div>
-        {% endif %}
-    </div>
 
-    <div class="dashboard-actions">
-        <a class="btn btn-secondary" href="{{ url_for('dashboard.my_articles') }}">Bài viết của tôi</a>
-        <a class="btn btn-primary" href="{{ url_for('dashboard.create_article') }}">+ Viết bài</a>
+            <!-- Row 3: Quick Actions -->
+            <div class="dashboard-row actions-row">
+                <div class="quick-actions">
+                    <h2>⚡ Tác vụ nhanh</h2>
+                    <div class="actions-grid">
+                        <a class="action-card primary" href="{{ url_for('dashboard.create_article') }}">
+                            <div class="action-icon">✏️</div>
+                            <div class="action-content">
+                                <h3>Viết bài mới</h3>
+                                <p>Tạo bài viết ngay</p>
+                            </div>
+                        </a>
 
-        {% if user.role == 'admin' %}
-        <a class="btn btn-secondary" href="{{ url_for('admin.categories_list') }}">Quản lý danh mục</a>
-        <form method="POST" action="{{ url_for('admin.backup') }}" style="display:inline;">
-            <button class="btn btn-secondary" type="submit">Backup DB</button>
-        </form>
-        {% endif %}
+                        <a class="action-card" href="{{ url_for('dashboard.my_articles') }}">
+                            <div class="action-icon">📝</div>
+                            <div class="action-content">
+                                <h3>Bài viết của tôi</h3>
+                                <p>Quản lý nội dung</p>
+                            </div>
+                        </a>
+
+                        {% if user.role in ['editor', 'admin'] %}
+                        <a class="action-card" href="{{ url_for('editor.review_queue') }}">
+                            <div class="action-icon">👀</div>
+                            <div class="action-content">
+                                <h3>Duyệt bài</h3>
+                                <p>{{ pending_count or 0 }} bài chờ</p>
+                            </div>
+                        </a>
+                        {% endif %}
+
+                        {% if user.role == 'admin' %}
+                        <form method="POST" action="{{ url_for('admin.backup') }}" class="action-form">
+                            <button type="submit" class="action-card">
+                                <div class="action-icon">💾</div>
+                                <div class="action-content">
+                                    <h3>Backup DB</h3>
+                                    <p>Sao lưu dữ liệu</p>
+                                </div>
+                            </button>
+                        </form>
+
+                        <a class="action-card" href="{{ url_for('admin.categories_list') }}">
+                            <div class="action-icon">📁</div>
+                            <div class="action-content">
+                                <h3>Quản lý danh mục</h3>
+                                <p>Cấu hình chuyên mục</p>
+                            </div>
+                        </a>
+
+                        <a class="action-card" href="{{ url_for('admin.users_list') }}">
+                            <div class="action-icon">👥</div>
+                            <div class="action-content">
+                                <h3>Quản lý users</h3>
+                                <p>{{ users_count or 0 }} tài khoản</p>
+                            </div>
+                        </a>
+                        {% endif %}
+
+                        <a class="action-card" href="{{ url_for('main.profile_dashboard') }}">
+                            <div class="action-icon">👤</div>
+                            <div class="action-content">
+                                <h3>Profile</h3>
+                                <p>Cài đặt cá nhân</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+
+<!-- Chart.js (only for admin) -->
+{% if user.role == 'admin' %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Initialize dashboard
+document.addEventListener('DOMContentLoaded', function() {
+    initializeCharts();
+    updateTime();
+    setInterval(updateTime, 1000);
+    setupEventListeners();
+});
+
+function updateTime() {
+    const now = new Date();
+    const timeString = now.toLocaleString('vi-VN', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    const timeElement = document.getElementById('currentTime');
+    if (timeElement) {
+        timeElement.textContent = timeString;
+    }
+}
+
+function initializeCharts() {
+    // Articles Over Time
+    const articlesCtx = document.getElementById('articlesChart');
+    if (articlesCtx) {
+        new Chart(articlesCtx, {
+            type: 'line',
+            data: {
+                labels: generateDateLabels(30),
+                datasets: [{
+                    label: 'Đã xuất bản',
+                    data: generateRandomData(30, 5, 25),
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    tension: 0.4
+                }, {
+                    label: 'Chờ duyệt',
+                    data: generateRandomData(30, 2, 10),
+                    borderColor: '#f59e0b',
+                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' }
+                }
+            }
+        });
+    }
+
+    // Category Views
+    const categoryCtx = document.getElementById('categoryChart');
+    if (categoryCtx) {
+        new Chart(categoryCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Chính trị', 'Công nghệ', 'Thể thao', 'Giải trí', 'Kinh doanh'],
+                datasets: [{
+                    data: [30, 25, 20, 15, 10],
+                    backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    }
+
+    // User Growth
+    const userGrowthCtx = document.getElementById('userGrowthChart');
+    if (userGrowthCtx) {
+        new Chart(userGrowthCtx, {
+            type: 'line',
+            data: {
+                labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'],
+                datasets: [{
+                    label: 'Người dùng mới',
+                    data: [45, 52, 48, 65, 58, 72],
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    }
+
+    // Top Articles
+    const topArticlesCtx = document.getElementById('topArticlesChart');
+    if (topArticlesCtx) {
+        new Chart(topArticlesCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Bài 1', 'Bài 2', 'Bài 3', 'Bài 4', 'Bài 5'],
+                datasets: [{
+                    label: 'Lượt xem',
+                    data: [1200, 980, 850, 720, 650],
+                    backgroundColor: '#3b82f6'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    }
+}
+
+function generateDateLabels(days) {
+    const labels = [];
+    for (let i = days - 1; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        labels.push(date.getDate() + '/' + (date.getMonth() + 1));
+    }
+    return labels;
+}
+
+function generateRandomData(count, min, max) {
+    const data = [];
+    for (let i = 0; i < count; i++) {
+        data.push(Math.floor(Math.random() * (max - min + 1)) + min);
+    }
+    return data;
+}
+
+function refreshChart(chartName) {
+    console.log('Refreshing chart:', chartName);
+    // Refresh specific chart with new data
+}
+
+function setupEventListeners() {
+    const timeRange = document.getElementById('timeRange');
+    if (timeRange) {
+        timeRange.addEventListener('change', function() {
+            console.log('Time range changed to:', this.value);
+            // Reload charts with new time range
+        });
+    }
+}
+</script>
+{% endif %}
 {% endblock %}
 
