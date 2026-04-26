@@ -3,14 +3,24 @@
 {% block title %}Trang chủ - BÁO MỚI ĐÂY{% endblock %}
 
 {% block content %}
-<div class="hero-section">
+<!-- Breaking News Section -->
+<section class="breaking-news">
     <div class="container">
-        <h2>Chào mừng đến với BÁO MỚI ĐÂY</h2>
-        <p>Cập nhật những tin tức mới nhất về đời sống, văn hóa, thể thao, công nghệ và nhiều hơn nữa</p>
+        <div class="breaking-news-content">
+            <span class="breaking-label">TIN NÓNG</span>
+            <div class="breaking-ticker">
+                {% for article in featured_articles[:3] %}
+                <a href="{{ url_for('main.article_detail', article_id=article.id) }}" class="breaking-item">
+                    {{ article.title }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
     </div>
-</div>
+</section>
 
 <div class="container">
+    <!-- Search Section -->
     <section class="search-section">
         <form method="GET" action="{{ url_for('main.index') }}" class="search-form">
             <input type="text" name="q" placeholder="Tìm kiếm bài viết..." value="{{ q or '' }}">
@@ -31,54 +41,185 @@
         </form>
     </section>
 
-    <!-- Categories Section -->
-    <section id="categories" class="categories-section">
-        <h2 class="section-title">Danh mục tin tức</h2>
-        <div class="categories-grid">
-            {% for category in categories %}
-            <div class="category-card">
-                <a href="{{ url_for('main.category_articles', category_id=category.id) }}">
-                    <h3>{{ category.name }}</h3>
-                    <p>{{ category.description or 'Không có mô tả' }}</p>
-                </a>
-            </div>
-            {% endfor %}
-        </div>
-    </section>
-
-    <!-- Latest Articles -->
-    <section class="articles-section">
-        <h2 class="section-title">Tin tức mới nhất</h2>
-        <div class="articles-grid">
-            {% for article in articles %}
-            <article class="article-card">
-                {% set img = (article.image_ref|image_src) %}
-                {% if img %}
-                <div class="article-image">
-                    <img src="{{ img }}" alt="{{ article.title }}">
+    <!-- Main Content Grid -->
+    <div class="main-grid">
+        <!-- Left Column - Featured News -->
+        <div class="main-content">
+            <!-- Featured Article -->
+            {% if featured_articles %}
+            <section class="featured-section">
+                {% set main_featured = featured_articles[0] %}
+                <div class="featured-main">
+                    {% set img = (main_featured.image_ref|image_src) %}
+                    {% if img %}
+                    <div class="featured-image">
+                        <a href="{{ url_for('main.article_detail', article_id=main_featured.id) }}">
+                            <img src="{{ img }}" alt="{{ main_featured.title }}">
+                        </a>
+                    </div>
+                    {% endif %}
+                    <div class="featured-content">
+                        <div class="article-meta">
+                            <span class="category-badge">{{ main_featured.category.name }}</span>
+                            <span class="date">{{ main_featured.created_at.strftime('%d/%m/%Y %H:%M') }}</span>
+                        </div>
+                        <h1 class="featured-title">
+                            <a href="{{ url_for('main.article_detail', article_id=main_featured.id) }}">{{ main_featured.title }}</a>
+                        </h1>
+                        {% if main_featured.excerpt %}
+                        <p class="featured-excerpt">{{ main_featured.excerpt }}</p>
+                        {% endif %}
+                        <div class="article-footer">
+                            <span class="author">{{ main_featured.author.username }}</span>
+                            <span class="views">{{ main_featured.views }} lượt xem</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sub Featured Articles -->
+                {% if featured_articles[1:] %}
+                <div class="featured-sub">
+                    {% for article in featured_articles[1:3] %}
+                    <div class="featured-sub-item">
+                        {% set img = (article.image_ref|image_src) %}
+                        {% if img %}
+                        <div class="featured-sub-image">
+                            <a href="{{ url_for('main.article_detail', article_id=article.id) }}">
+                                <img src="{{ img }}" alt="{{ article.title }}">
+                            </a>
+                        </div>
+                        {% endif %}
+                        <div class="featured-sub-content">
+                            <div class="article-meta">
+                                <span class="category-badge">{{ article.category.name }}</span>
+                                <span class="date">{{ article.created_at.strftime('%d/%m/%Y') }}</span>
+                            </div>
+                            <h3 class="featured-sub-title">
+                                <a href="{{ url_for('main.article_detail', article_id=article.id) }}">{{ article.title }}</a>
+                            </h3>
+                        </div>
+                    </div>
+                    {% endfor %}
                 </div>
                 {% endif %}
-                <div class="article-content">
+            </section>
+            {% endif %}
+
+            <!-- Category News Sections -->
+            {% for category in categories %}
+            {% if category_articles[category.id] %}
+            <section class="category-news-section">
+                <div class="section-header">
+                    <h2 class="section-title">{{ category.name }}</h2>
+                    <a href="{{ url_for('main.category_articles', category_id=category.id) }}" class="view-more">Xem thêm →</a>
+                </div>
+                <div class="category-news-grid">
+                    {% for article in category_articles[category.id] %}
+                    <article class="category-news-item">
+                        {% set img = (article.image_ref|image_src) %}
+                        {% if img %}
+                        <div class="category-news-image">
+                            <a href="{{ url_for('main.article_detail', article_id=article.id) }}">
+                                <img src="{{ img }}" alt="{{ article.title }}">
+                            </a>
+                        </div>
+                        {% endif %}
+                        <div class="category-news-content">
+                            <div class="article-meta">
+                                <span class="date">{{ article.created_at.strftime('%d/%m/%Y %H:%M') }}</span>
+                            </div>
+                            <h3 class="category-news-title">
+                                <a href="{{ url_for('main.article_detail', article_id=article.id) }}">{{ article.title }}</a>
+                            </h3>
+                            {% if article.excerpt %}
+                            <p class="category-news-excerpt">{{ article.excerpt[:100] }}...</p>
+                            {% endif %}
+                        </div>
+                    </article>
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
+            {% endfor %}
+        </div>
+
+        <!-- Right Sidebar -->
+        <div class="sidebar">
+            <!-- Most Viewed -->
+            {% if most_viewed_articles %}
+            <section class="most-viewed-section">
+                <h3 class="sidebar-title">TIN XEM NHIỀU</h3>
+                <div class="most-viewed-list">
+                    {% for article in most_viewed_articles[:10] %}
+                    <div class="most-viewed-item">
+                        <span class="number">{{ loop.index }}</span>
+                        <div class="most-viewed-content">
+                            <h4 class="most-viewed-title">
+                                <a href="{{ url_for('main.article_detail', article_id=article.id) }}">{{ article.title }}</a>
+                            </h4>
+                            <div class="article-meta">
+                                <span class="category-badge">{{ article.category.name }}</span>
+                                <span class="views">{{ article.views }} lượt xem</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
+
+            <!-- Categories Menu -->
+            <section class="sidebar-categories">
+                <h3 class="sidebar-title">DANH MỤC</h3>
+                <div class="sidebar-categories-list">
+                    {% for category in categories %}
+                    <a href="{{ url_for('main.category_articles', category_id=category.id) }}" class="sidebar-category-item">
+                        {{ category.name }}
+                        <span class="category-count">{{ category_articles[category.id]|length }}</span>
+                    </a>
+                    {% endfor %}
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Latest News Section -->
+    {% if latest_articles %}
+    <section class="latest-news-section">
+        <div class="section-header">
+            <h2 class="section-title">TIN MỚI NHẤT</h2>
+        </div>
+        <div class="latest-news-grid">
+            {% for article in latest_articles %}
+            <article class="latest-news-item">
+                {% set img = (article.image_ref|image_src) %}
+                {% if img %}
+                <div class="latest-news-image">
+                    <a href="{{ url_for('main.article_detail', article_id=article.id) }}">
+                        <img src="{{ img }}" alt="{{ article.title }}">
+                    </a>
+                </div>
+                {% endif %}
+                <div class="latest-news-content">
                     <div class="article-meta">
                         <span class="category-badge">{{ article.category.name }}</span>
-                        <span class="date">{{ article.created_at.strftime('%d/%m/%Y') }}</span>
+                        <span class="date">{{ article.created_at.strftime('%d/%m/%Y %H:%M') }}</span>
                     </div>
-                    <h3 class="article-title">
+                    <h3 class="latest-news-title">
                         <a href="{{ url_for('main.article_detail', article_id=article.id) }}">{{ article.title }}</a>
                     </h3>
                     {% if article.excerpt %}
-                    <p class="article-excerpt">{{ article.excerpt }}</p>
+                    <p class="latest-news-excerpt">{{ article.excerpt }}</p>
                     {% endif %}
                     <div class="article-footer">
-                        <span class="author">Tác giả: {{ article.author.username }}</span>
+                        <span class="author">{{ article.author.username }}</span>
                         <span class="views">{{ article.views }} lượt xem</span>
                     </div>
                 </div>
             </article>
-            {% else %}
-            <p class="no-articles">Chưa có bài viết nào. Hãy đăng nhập để tạo bài viết đầu tiên!</p>
             {% endfor %}
         </div>
     </section>
+    {% endif %}
 </div>
 {% endblock %}

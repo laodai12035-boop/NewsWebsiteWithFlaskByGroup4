@@ -121,6 +121,43 @@
         </div>
     </article>
 
+    <!-- Related Articles -->
+    {% if related_articles %}
+    <section class="related-articles-section">
+        <h2 class="section-title">BÀI VIẾT LIÊN QUAN</h2>
+        <div class="related-articles-grid">
+            {% for article in related_articles %}
+            <article class="related-article-item">
+                {% set img = (article.image_ref|image_src) %}
+                {% if img %}
+                <div class="related-article-image">
+                    <a href="{{ url_for('main.article_detail', article_id=article.id) }}">
+                        <img src="{{ img }}" alt="{{ article.title }}">
+                    </a>
+                </div>
+                {% endif %}
+                <div class="related-article-content">
+                    <div class="article-meta">
+                        <span class="category-badge">{{ article.category.name }}</span>
+                        <span class="date">{{ article.created_at.strftime('%d/%m/%Y') }}</span>
+                    </div>
+                    <h3 class="related-article-title">
+                        <a href="{{ url_for('main.article_detail', article_id=article.id) }}">{{ article.title }}</a>
+                    </h3>
+                    {% if article.excerpt %}
+                    <p class="related-article-excerpt">{{ article.excerpt[:100] }}...</p>
+                    {% endif %}
+                    <div class="article-footer">
+                        <span class="author">{{ article.author.username }}</span>
+                        <span class="views">{{ article.views }} lượt xem</span>
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
     <!-- Comments -->
     <section class="comments-section">
         <h2>Bình luận</h2>

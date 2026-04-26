@@ -18,8 +18,31 @@ def index():
     category_id = request.args.get("category")
     sort = request.args.get("sort") or "newest"
 
-    query = Article.query.filter(Article.status == ArticleStatus.PUBLISHED)
+    # Base query for published articles
+    base_query = Article.query.filter(Article.status == ArticleStatus.PUBLISHED)
+    
+    # Featured articles (top 5 latest with high views)
+    featured_articles = base_query.order_by(Article.views.desc(), Article.created_at.desc()).limit(5).all()
+    
+    # Most viewed articles (top 10)
+    most_viewed_articles = base_query.order_by(Article.views.desc(), Article.created_at.desc()).limit(10).all()
+    
+    # Latest articles (top 12)
+    latest_articles = base_query.order_by(Article.created_at.desc()).limit(12).all()
+    
+    # Get articles by category (top 3 for each category)
+    categories = Category.query.filter_by(active=True).order_by(Category.name.asc()).all()
+    category_articles = {}
+    for category in categories:
+        category_articles[category.id] = (
+            base_query.filter(Article.category_id == category.id)
+            .order_by(Article.created_at.desc())
+            .limit(3)
+            .all()
+        )
 
+    # Handle search and filtering
+    query = base_query
     if q:
         like = f"%{q}%"
         query = query.filter(or_(Article.title.ilike(like), Article.excerpt.ilike(like), Article.content.ilike(like)))
@@ -35,11 +58,15 @@ def index():
         query = query.order_by(Article.created_at.desc())
 
     articles = query.limit(20).all()
-    categories = Category.query.filter_by(active=True).order_by(Category.name.asc()).all()
+    
     return render_template(
         "main/index.html",
         articles=articles,
         categories=categories,
+        category_articles=category_articles,
+        featured_articles=featured_articles,
+        most_viewed_articles=most_viewed_articles,
+        latest_articles=latest_articles,
         q=q,
         selected_category=category_id or "",
         sort=sort,
@@ -60,6 +87,19 @@ def article_detail(article_id: int):
     if article.status == ArticleStatus.PUBLISHED:
         article.views += 1
         db.session.commit()
+    
+    # Get related articles (same category, excluding current article)
+    related_articles = (
+        Article.query.filter(
+            Article.category_id == article.category_id,
+            Article.status == ArticleStatus.PUBLISHED,
+            Article.id != article.id
+        )
+        .order_by(Article.created_at.desc())
+        .limit(5)
+        .all()
+    )
+    
     user = get_current_user()
     is_favorited = False
     if user:
@@ -79,6 +119,7 @@ def article_detail(article_id: int):
         article=article,
         is_favorited=is_favorited,
         approved_comments=approved_comments,
+        related_articles=related_articles,
         enable_ai_summary=enable_ai_summary,
     )
 
@@ -240,4 +281,26 @@ def my_favorites():
 
     articles = fav_query.all()
     return render_template("main/favorites.html", articles=articles, q=q, sort=sort)
+
+
+@bp.route("/me/profile")
+@login_required
+def profile_dashboard():
+    user = get_current_user()
+    assert user is not None
+
+    # Get user's articles with statistics
+    user_articles = Article.query.filter_by(user_id=user.id).order_by(Article.created_at.desc()).all()
+    
+    # Calculate statistics
+    published_count = len([a for a in user_articles if a.status == ArticleStatus.PUBLISHED])
+    total_views = sum(a.views for a in user_articles if a.status == ArticleStatus.PUBLISHED)
+    
+    return render_template(
+        "main/profile.html",
+        user=user,
+        user_articles=user_articles,
+        published_count=published_count,
+        total_views=total_views
+    )
 

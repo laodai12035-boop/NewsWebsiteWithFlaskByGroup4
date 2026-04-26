@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - {{ user.username }}{% endblock %}
+
+{% block content %}
+<div class="profile-dashboard">
+    <div class="container">
+        <div class="profile-grid">
+            <!-- Cột bên trái - Thông tin User -->
+            <div class="profile-sidebar">
+                <!-- Profile Card -->
+                <div class="profile-card">
+                    <div class="profile-avatar">
+                        <div class="avatar-circle">
+                            {{ user.username[0]|upper }}
+                        </div>
+                    </div>
+                    <div class="profile-info">
+                        <h2 class="profile-name">{{ user.username }}</h2>
+                        <span class="profile-badge">{{ user.role.upper() }}</span>
+                    </div>
+                </div>
+
+                <!-- Thống kê -->
+                <div class="stats-card">
+                    <h3 class="stats-title">Thống kê</h3>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-number">{{ published_count }}</div>
+                            <div class="stat-label">Đã xuất bản</div>
+                        </div>
+                        <div class="stat-divider"></div>
+                        <div class="stat-item">
+                            <div class="stat-number">{{ total_views|default(0) }}</div>
+                            <div class="stat-label">Lượt xem</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Đổi mật khẩu -->
+                <div class="password-card">
+                    <h3 class="password-title">Đổi mật khẩu</h3>
+                    <form class="password-form" method="POST" action="{{ url_for('auth.change_password') }}">
+                        <div class="form-group">
+                            <input type="password" name="current_password" placeholder="Mật khẩu hiện tại" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="password" name="new_password" placeholder="Mật khẩu mới" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="password" name="confirm_password" placeholder="Xác nhận mật khẩu mới" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Cập nhật</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Cột bên phải - Danh sách bài viết -->
+            <div class="profile-content">
+                <div class="content-header">
+                    <h2 class="content-title">Bài viết của tôi</h2>
+                    <a href="{{ url_for('dashboard.create_article') }}" class="btn btn-primary">
+                        <span class="btn-icon">+</span>
+                        Đăng bài mới
+                    </a>
+                </div>
+
+                <div class="articles-list">
+                    {% for article in user_articles %}
+                    <div class="article-card">
+                        <div class="article-image">
+                            {% set img = (article.image_ref|image_src) %}
+                            {% if img %}
+                            <img src="{{ img }}" alt="{{ article.title }}">
+                            {% else %}
+                            <div class="image-placeholder">
+                                <span>Không có ảnh</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="article-content">
+                            <div class="article-category">{{ article.category.name.upper() }}</div>
+                            <h3 class="article-title">
+                                <a href="{{ url_for('main.article_detail', article_id=article.id) }}">{{ article.title }}</a>
+                            </h3>
+                            <div class="article-meta">
+                                <span class="article-date">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                                    </svg>
+                                    {{ article.created_at.strftime('%d/%m/%Y') }}
+                                </span>
+                                <span class="article-views">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                        <circle cx="12" cy="12" r="3"></circle>
+                                    </svg>
+                                    {{ article.views }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="article-status">
+                            {% if article.status == 'published' %}
+                            <span class="status-badge status-published">Đã duyệt</span>
+                            {% elif article.status == 'pending' %}
+                            <span class="status-badge status-pending">Chờ duyệt</span>
+                            {% elif article.status == 'draft' %}
+                            <span class="status-badge status-draft">Bản nháp</span>
+                            {% elif article.status == 'rejected' %}
+                            <span class="status-badge status-rejected">Từ chối</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <div class="empty-icon">📝</div>
+                        <h3>Chưa có bài viết nào</h3>
+                        <p>Bắt đầu viết bài đầu tiên của bạn ngay!</p>
+                        <a href="{{ url_for('dashboard.create_article') }}" class="btn btn-primary">Đăng bài mới</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

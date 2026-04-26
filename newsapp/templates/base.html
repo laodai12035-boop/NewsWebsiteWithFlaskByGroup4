@@ -26,6 +26,7 @@
                         <li><a href="#categories">Danh mục</a></li>
                         {% if session.user_id %}
                             <li><a href="{{ url_for('main.my_favorites') }}">Yêu thích</a></li>
+                            <li><a href="{{ url_for('main.profile_dashboard') }}">Profile</a></li>
                             <li><a href="{{ url_for('dashboard.dashboard_home') }}">Dashboard</a></li>
                             {% if session.role in ['editor', 'admin'] %}
                                 <li><a href="{{ url_for('editor.review_queue') }}">Duyệt bài</a></li>
