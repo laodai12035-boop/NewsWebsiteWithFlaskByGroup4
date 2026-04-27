@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{% if article %}Chỉnh sửa bài viết{% else %}Tạo bài viết mới{% endif %} - Báo Mới Đây !!!{% endblock %}
+{% block title %}{% if article %}Chỉnh sửa bài viết{% else %}Tạo bài viết mới{% endif %} - VÃI CHƯỞNG.SITE !!!{% endblock %}
 
 {% block content %}
 <div class="container">
@@ -56,11 +56,7 @@
                 <textarea id="content" name="content" rows="15" required>{{ article.content if article else '' }}</textarea>
             </div>
 
-            <div class="form-group">
-                <label for="inline_image_file">Chèn hình ảnh vào nội dung</label>
-                <input type="file" id="inline_image_file" accept=".png,.jpg,.jpeg,.webp,.gif">
-                <p class="small-muted">Ảnh sẽ được upload và tự động chèn thẻ &lt;img&gt; vào vị trí con trỏ trong nội dung.</p>
-            </div>
+
 
             <div class="form-actions">
                 <button type="submit" class="btn btn-secondary" name="action" value="save">Lưu nháp</button>
@@ -70,4 +66,53 @@
         </form>
     </div>
 </div>
+{% endblock %}
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.3/tinymce.min.js"></script>
+<script>
+    tinymce.init({
+        selector: '#content',
+        height: 600,
+        plugins: 'advlist autolink lists link image charmap preview anchor searchreplace visualblocks code fullscreen insertdatetime media table wordcount',
+        toolbar: 'undo redo | blocks | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image media table | removeformat | fullscreen code',
+        menubar: false,
+        content_style: 'body { font-family: "Inter", sans-serif; font-size: 16px; line-height: 1.6; } img { max-width: 100%; height: auto; }',
+        images_upload_handler: function (blobInfo, progress) {
+            return new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.withCredentials = false;
+                xhr.open('POST', '{{ url_for("dashboard.upload_inline_image") }}');
+
+                xhr.upload.onprogress = (e) => {
+                    progress(e.loaded / e.total * 100);
+                };
+
+                xhr.onload = function() {
+                    if (xhr.status < 200 || xhr.status >= 300) {
+                        reject('HTTP Error: ' + xhr.status);
+                        return;
+                    }
+
+                    const json = JSON.parse(xhr.responseText);
+
+                    if (!json || !json.ok || typeof json.url !== 'string') {
+                        reject('Invalid JSON or upload failed: ' + (json.error || ''));
+                        return;
+                    }
+
+                    resolve(json.url);
+                };
+
+                xhr.onerror = function () {
+                    reject('Image upload failed due to a network error.');
+                };
+
+                const formData = new FormData();
+                formData.append('file', blobInfo.blob(), blobInfo.filename());
+
+                xhr.send(formData);
+            });
+        }
+    });
+</script>
 {% endblock %}

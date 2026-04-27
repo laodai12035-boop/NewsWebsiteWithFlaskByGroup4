@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ article.title }} - Báo Mới Đây !!!{% endblock %}
+{% block title %}{{ article.title }} - VÃI CHƯỞNG.SITE !!!{% endblock %}
 
 {% block content %}
 <div class="container">
@@ -43,7 +43,7 @@
         <div class="article-body">
             <p class="article-excerpt">{{ article.excerpt or '' }}</p>
             <div class="article-content-text">
-                {{ article.content | replace('\n', '<br>') | safe }}
+                {{ article.content | safe }}
             </div>
         </div>
         

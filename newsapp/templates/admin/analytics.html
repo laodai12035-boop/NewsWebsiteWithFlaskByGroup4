@@ -7,16 +7,16 @@
     <div class="container">
         <!-- Header -->
         <div class="dashboard-header">
-            <h1>📊 Analytics Dashboard</h1>
+            <h1> Analytics Dashboard</h1>
             <div class="date-filter">
                 <select id="timeRange" class="form-control">
-                    <option value="7">Last 7 days</option>
-                    <option value="30" selected>Last 30 days</option>
-                    <option value="90">Last 90 days</option>
-                    <option value="365">Last year</option>
+                    <option value="7">7 ngày trước</option>
+                    <option value="30" selected>1 tháng trước</option>
+                    <option value="90">3 tháng trước</option>
+                    <option value="365">Năm trước</option>
                 </select>
                 <button class="btn btn-primary" onclick="exportData()">
-                    📥 Export
+                     Export
                 </button>
             </div>
         </div>
@@ -27,35 +27,35 @@
                 <div class="stat-icon articles-icon">📝</div>
                 <div class="stat-content">
                     <div class="stat-number" id="totalArticles">{{ stats.total_articles }}</div>
-                    <div class="stat-label">Total Articles</div>
-                    <div class="stat-change positive">+12% from last month</div>
+                    <div class="stat-label">Tổng số bài viết</div>
+                    <div class="stat-change positive">+12% so với tháng trước</div>
                 </div>
             </div>
 
             <div class="stat-card">
-                <div class="stat-icon published-icon">✅</div>
+                <div class="stat-icon published-icon"></div>
                 <div class="stat-content">
                     <div class="stat-number" id="publishedArticles">{{ stats.published_articles }}</div>
-                    <div class="stat-label">Published</div>
-                    <div class="stat-change positive">+8% from last month</div>
+                    <div class="stat-label">Đã phát hành</div>
+                    <div class="stat-change positive">+8% so với tháng trước</div>
                 </div>
             </div>
 
             <div class="stat-card">
-                <div class="stat-icon users-icon">👥</div>
+                <div class="stat-icon users-icon"></div>
                 <div class="stat-content">
                     <div class="stat-number" id="activeUsers">{{ stats.active_users }}</div>
-                    <div class="stat-label">Active Users</div>
-                    <div class="stat-change positive">+25% from last month</div>
+                    <div class="stat-label">Người dùng</div>
+                    <div class="stat-change positive">+25% so với tháng trước</div>
                 </div>
             </div>
 
             <div class="stat-card">
-                <div class="stat-icon views-icon">👁️</div>
+                <div class="stat-icon views-icon"></div>
                 <div class="stat-content">
                     <div class="stat-number" id="todayViews">{{ stats.today_views }}</div>
-                    <div class="stat-label">Today's Views</div>
-                    <div class="stat-change negative">-5% from yesterday</div>
+                    <div class="stat-label">Số lượt xem hôm nay</div>
+                    <div class="stat-change negative">-5% so với hôm qua</div>
                 </div>
             </div>
         </div>
@@ -65,9 +65,9 @@
             <!-- Articles Over Time -->
             <div class="chart-card">
                 <div class="chart-header">
-                    <h3>📈 Articles Over Time</h3>
+                    <h3>Articles Over Time</h3>
                     <div class="chart-actions">
-                        <button class="chart-refresh-btn" onclick="refreshChart('articlesChart')">🔄</button>
+                        <button class="chart-refresh-btn" onclick="refreshChart('articlesChart')"></button>
                     </div>
                 </div>
                 <div class="chart-container">
@@ -78,7 +78,7 @@
             <!-- Views by Category -->
             <div class="chart-card">
                 <div class="chart-header">
-                    <h3>🎯 Views by Category</h3>
+                    <h3>Views by Category</h3>
                     <div class="chart-actions">
                         <button class="chart-refresh-btn" onclick="refreshChart('categoryChart')">🔄</button>
                     </div>
@@ -91,7 +91,7 @@
             <!-- User Growth -->
             <div class="chart-card">
                 <div class="chart-header">
-                    <h3>👤 User Growth</h3>
+                    <h3>User Growth</h3>
                     <div class="chart-actions">
                         <button class="chart-refresh-btn" onclick="refreshChart('userGrowthChart')">🔄</button>
                     </div>
@@ -104,7 +104,7 @@
             <!-- Top Performers -->
             <div class="chart-card">
                 <div class="chart-header">
-                    <h3>🏆 Top Performing Articles</h3>
+                    <h3>Top Performing Articles</h3>
                     <div class="chart-actions">
                         <button class="chart-refresh-btn" onclick="refreshChart('topArticlesChart')">🔄</button>
                     </div>
@@ -118,7 +118,7 @@
         <!-- Recent Activity Table -->
         <div class="activity-section">
             <div class="section-header">
-                <h3>📋 Recent Activity</h3>
+                <h3>Recent Activity</h3>
                 <div class="filter-tabs">
                     <button class="tab-btn active" data-filter="all">All</button>
                     <button class="tab-btn" data-filter="articles">Articles</button>

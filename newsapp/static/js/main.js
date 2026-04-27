@@ -30,56 +30,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Inline image upload for article content
-    const inlineImageInput = document.getElementById('inline_image_file');
-    const contentTextarea = document.getElementById('content');
-
-    function insertAtCursor(textarea, text) {
-        if (!textarea) return;
-        const start = textarea.selectionStart || 0;
-        const end = textarea.selectionEnd || 0;
-        const before = textarea.value.substring(0, start);
-        const after = textarea.value.substring(end);
-        textarea.value = before + text + after;
-        const pos = start + text.length;
-        textarea.selectionStart = textarea.selectionEnd = pos;
-        textarea.focus();
-    }
-
-    if (inlineImageInput && contentTextarea) {
-        inlineImageInput.addEventListener('change', function () {
-            if (!inlineImageInput.files || inlineImageInput.files.length === 0) {
-                return;
-            }
-            const file = inlineImageInput.files[0];
-            const formData = new FormData();
-            formData.append('file', file);
-
-            inlineImageInput.disabled = true;
-
-            fetch('/dashboard/uploads/images', {
-                method: 'POST',
-                body: formData
-            })
-                .then(res => res.json())
-                .then(data => {
-                    if (!data.ok) {
-                        alert(data.error || 'Upload ảnh thất bại');
-                        return;
-                    }
-                    const url = data.url;
-                    const snippet = `\n\n<img src="${url}" alt="Ảnh minh họa">\n\n`;
-                    insertAtCursor(contentTextarea, snippet);
-                })
-                .catch(() => {
-                    alert('Không thể upload ảnh.');
-                })
-                .finally(() => {
-                    inlineImageInput.value = '';
-                    inlineImageInput.disabled = false;
-                });
-        });
-    }
 
     // AI summarize article
     const summaryButton = document.getElementById('btn-generate-summary');

@@ -20,7 +20,6 @@ Website tin tức đời sống là một ứng dụng web cho phép:
   ```
   Website tintuc doi song/
   ├── app.py                 # Entrypoint (run server)
-  ├── instance/news_website_v2
   ├── newsapp/               # App package (models/services/controllers)
   │   ├── __init__.py        # create_app()
   │   ├── extensions.py      # db

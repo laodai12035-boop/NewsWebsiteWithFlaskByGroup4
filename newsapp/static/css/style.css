@@ -3097,7 +3097,40 @@ tbody tr:last-child td {
 @media (max-width: 768px) {
     .container { padding: 0 16px; }
 
-    .nav-menu { display: none; }
+    .nav-menu {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background: var(--surface);
+        padding: 1rem;
+        box-shadow: var(--shadow-md);
+        border-top: 1px solid var(--border-color);
+        z-index: 1000;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .nav-menu.active {
+        display: flex;
+    }
+
+    .nav-menu ul {
+        flex-direction: column;
+        width: 100%;
+        align-items: flex-start;
+    }
+
+    .nav-menu ul li {
+        width: 100%;
+    }
+
+    .nav-menu a {
+        display: block;
+        width: 100%;
+    }
+
     .mobile-menu-toggle { display: flex; }
 
     .hero-section { padding: 2.5rem 0 2rem; }
