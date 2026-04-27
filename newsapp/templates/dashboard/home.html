@@ -8,7 +8,7 @@
         <!-- Dashboard Header -->
         <div class="dashboard-header">
             <div class="header-content">
-                <h1>📊 Dashboard</h1>
+                <h1>Dashboard</h1>
                 <p>Xin chào, <strong>{{ user.username }}</strong> ({{ user.role|title }})</p>
             </div>
             <div class="header-time">
@@ -19,21 +19,22 @@
         <!-- Dashboard Grid Layout -->
         <div class="dashboard-grid">
             <!-- Row 1: Statistics Cards -->
+            {% if user.role == 'admin' %}
             <div class="dashboard-row stats-row">
                 <div class="stat-card">
-                    <div class="stat-icon pending-icon">📝</div>
+                    <div class="stat-icon pending-icon"></div>
                     <div class="stat-content">
                         <div class="stat-number">{{ pending_count or 0 }}</div>
                         <div class="stat-label">Bài chờ duyệt</div>
                         {% if user.role in ['editor', 'admin'] %}
-                            <a class="stat-action" href="{{ url_for('editor.review_queue') }}">Xem ngay →</a>
+                        <a class="stat-action" href="{{ url_for('editor.review_queue') }}">Xem ngay →</a>
                         {% endif %}
                     </div>
                 </div>
 
                 {% if user.role == 'admin' %}
                 <div class="stat-card">
-                    <div class="stat-icon users-icon">👥</div>
+                    <div class="stat-icon users-icon"></div>
                     <div class="stat-content">
                         <div class="stat-number">{{ users_count or 0 }}</div>
                         <div class="stat-label">Tài khoản</div>
@@ -42,7 +43,7 @@
                 </div>
 
                 <div class="stat-card">
-                    <div class="stat-icon articles-icon">📄</div>
+                    <div class="stat-icon articles-icon"></div>
                     <div class="stat-content">
                         <div class="stat-number">{{ stats.total_articles if stats else 0 }}</div>
                         <div class="stat-label">Tổng bài viết</div>
@@ -51,7 +52,7 @@
                 </div>
 
                 <div class="stat-card">
-                    <div class="stat-icon views-icon">👁️</div>
+                    <div class="stat-icon views-icon"></div>
                     <div class="stat-content">
                         <div class="stat-number">{{ stats.today_views if stats else 0 }}</div>
                         <div class="stat-label">Lượt xem hôm nay</div>
@@ -60,7 +61,7 @@
                 </div>
                 {% else %}
                 <div class="stat-card">
-                    <div class="stat-icon my-articles-icon">📚</div>
+                    <div class="stat-icon my-articles-icon"></div>
                     <div class="stat-content">
                         <div class="stat-number">{{ my_articles_count or 0 }}</div>
                         <div class="stat-label">Bài viết của tôi</div>
@@ -69,7 +70,7 @@
                 </div>
 
                 <div class="stat-card">
-                    <div class="stat-icon published-icon">✅</div>
+                    <div class="stat-icon published-icon"></div>
                     <div class="stat-content">
                         <div class="stat-number">{{ published_count or 0 }}</div>
                         <div class="stat-label">Đã xuất bản</div>
@@ -78,7 +79,7 @@
                 </div>
 
                 <div class="stat-card">
-                    <div class="stat-icon views-icon">👁️</div>
+                    <div class="stat-icon views-icon"></div>
                     <div class="stat-content">
                         <div class="stat-number">{{ total_views or 0 }}</div>
                         <div class="stat-label">Tổng lượt xem</div>
@@ -87,13 +88,14 @@
                 </div>
                 {% endif %}
             </div>
+            {% endif %}
 
             <!-- Row 2: Analytics Charts (Admin only) -->
             {% if user.role == 'admin' %}
             <div class="dashboard-row analytics-row">
                 <div class="analytics-section">
                     <div class="section-header">
-                        <h2>📈 Phân tích & Thống kê</h2>
+                        <h2>Phân tích & Thống kê</h2>
                         <div class="time-filter">
                             <select id="timeRange" class="form-control">
                                 <option value="7">7 ngày</option>
@@ -107,8 +109,9 @@
                         <!-- Articles Over Time -->
                         <div class="chart-card">
                             <div class="chart-header">
-                                <h3>📊 Bài viết theo thời gian</h3>
-                                <button class="btn-icon" onclick="refreshChart('articlesChart')">🔄</button>
+                                <h3>Bài viết theo thời gian</h3>
+                                <button class="chart-refresh-btn"
+                                    onclick="refreshChart('articlesChart')">Refresh</button>
                             </div>
                             <div class="chart-container">
                                 <canvas id="articlesChart"></canvas>
@@ -118,8 +121,9 @@
                         <!-- Views by Category -->
                         <div class="chart-card">
                             <div class="chart-header">
-                                <h3>🎯 Lượt xem theo danh mục</h3>
-                                <button class="btn-icon" onclick="refreshChart('categoryChart')">🔄</button>
+                                <h3>Lượt xem theo danh mục</h3>
+                                <button class="chart-refresh-btn"
+                                    onclick="refreshChart('categoryChart')">Refresh</button>
                             </div>
                             <div class="chart-container">
                                 <canvas id="categoryChart"></canvas>
@@ -129,8 +133,9 @@
                         <!-- User Growth -->
                         <div class="chart-card">
                             <div class="chart-header">
-                                <h3>👤 Tăng trưởng người dùng</h3>
-                                <button class="btn-icon" onclick="refreshChart('userGrowthChart')">🔄</button>
+                                <h3>Tăng trưởng người dùng</h3>
+                                <button class="chart-refresh-btn"
+                                    onclick="refreshChart('userGrowthChart')">Refresh</button>
                             </div>
                             <div class="chart-container">
                                 <canvas id="userGrowthChart"></canvas>
@@ -140,8 +145,9 @@
                         <!-- Top Articles -->
                         <div class="chart-card">
                             <div class="chart-header">
-                                <h3>🏆 Bài viết nổi bật</h3>
-                                <button class="btn-icon" onclick="refreshChart('topArticlesChart')">🔄</button>
+                                <h3>Bài viết nổi bật</h3>
+                                <button class="chart-refresh-btn"
+                                    onclick="refreshChart('topArticlesChart')">Refresh</button>
                             </div>
                             <div class="chart-container">
                                 <canvas id="topArticlesChart"></canvas>
@@ -155,18 +161,37 @@
             <!-- Row 3: Quick Actions -->
             <div class="dashboard-row actions-row">
                 <div class="quick-actions">
-                    <h2>⚡ Tác vụ nhanh</h2>
+                    <h2>Tác vụ nhanh</h2>
                     <div class="actions-grid">
                         <a class="action-card primary" href="{{ url_for('dashboard.create_article') }}">
-                            <div class="action-icon">✏️</div>
+                            <div class="action-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" class="lucide lucide-pen-line-icon lucide-pen-line">
+                                    <path d="M13 21h8" />
+                                    <path
+                                        d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
+                                </svg>
+                            </div>
                             <div class="action-content">
-                                <h3>Viết bài mới</h3>
+                                <h3> Viết bài mới</h3>
                                 <p>Tạo bài viết ngay</p>
                             </div>
                         </a>
 
                         <a class="action-card" href="{{ url_for('dashboard.my_articles') }}">
-                            <div class="action-icon">📝</div>
+                            <div class="action-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" class="lucide lucide-layout-list-icon lucide-layout-list">
+                                    <rect width="7" height="7" x="3" y="3" rx="1" />
+                                    <rect width="7" height="7" x="3" y="14" rx="1" />
+                                    <path d="M14 4h7" />
+                                    <path d="M14 9h7" />
+                                    <path d="M14 15h7" />
+                                    <path d="M14 20h7" />
+                                </svg>
+                            </div>
                             <div class="action-content">
                                 <h3>Bài viết của tôi</h3>
                                 <p>Quản lý nội dung</p>
@@ -175,7 +200,18 @@
 
                         {% if user.role in ['editor', 'admin'] %}
                         <a class="action-card" href="{{ url_for('editor.review_queue') }}">
-                            <div class="action-icon">👀</div>
+                            <div class="action-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    class="lucide lucide-clipboard-clock-icon lucide-clipboard-clock">
+                                    <path d="M16 14v2.2l1.6 1" />
+                                    <path d="M16 4h2a2 2 0 0 1 2 2v.832" />
+                                    <path d="M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h2" />
+                                    <circle cx="16" cy="16" r="6" />
+                                    <rect x="8" y="2" width="8" height="4" rx="1" />
+                                </svg>
+                            </div>
                             <div class="action-content">
                                 <h3>Duyệt bài</h3>
                                 <p>{{ pending_count or 0 }} bài chờ</p>
@@ -186,7 +222,20 @@
                         {% if user.role == 'admin' %}
                         <form method="POST" action="{{ url_for('admin.backup') }}" class="action-form">
                             <button type="submit" class="action-card">
-                                <div class="action-icon">💾</div>
+                                <div class="action-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        class="lucide lucide-database-backup-icon lucide-database-backup">
+                                        <ellipse cx="12" cy="5" rx="9" ry="3" />
+                                        <path d="M3 12a9 3 0 0 0 5 2.69" />
+                                        <path d="M21 9.3V5" />
+                                        <path d="M3 5v14a9 3 0 0 0 6.47 2.88" />
+                                        <path d="M12 12v4h4" />
+                                        <path
+                                            d="M13 20a5 5 0 0 0 9-3 4.5 4.5 0 0 0-4.5-4.5c-1.33 0-2.54.54-3.41 1.41L12 16" />
+                                    </svg>
+                                </div>
                                 <div class="action-content">
                                     <h3>Backup DB</h3>
                                     <p>Sao lưu dữ liệu</p>
@@ -195,7 +244,18 @@
                         </form>
 
                         <a class="action-card" href="{{ url_for('admin.categories_list') }}">
-                            <div class="action-icon">📁</div>
+                            <div class="action-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" class="lucide lucide-layers-icon lucide-layers">
+                                    <path
+                                        d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z" />
+                                    <path
+                                        d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12" />
+                                    <path
+                                        d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17" />
+                                </svg>
+                            </div>
                             <div class="action-content">
                                 <h3>Quản lý danh mục</h3>
                                 <p>Cấu hình chuyên mục</p>
@@ -203,7 +263,23 @@
                         </a>
 
                         <a class="action-card" href="{{ url_for('admin.users_list') }}">
-                            <div class="action-icon">👥</div>
+                            <div class="action-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" class="lucide lucide-user-cog-icon lucide-user-cog">
+                                    <path d="M10 15H6a4 4 0 0 0-4 4v2" />
+                                    <path d="m14.305 16.53.923-.382" />
+                                    <path d="m15.228 13.852-.923-.383" />
+                                    <path d="m16.852 12.228-.383-.923" />
+                                    <path d="m16.852 17.772-.383.924" />
+                                    <path d="m19.148 12.228.383-.923" />
+                                    <path d="m19.53 18.696-.382-.924" />
+                                    <path d="m20.772 13.852.924-.383" />
+                                    <path d="m20.772 16.148.924.383" />
+                                    <circle cx="18" cy="15" r="3" />
+                                    <circle cx="9" cy="7" r="4" />
+                                </svg>
+                            </div>
                             <div class="action-content">
                                 <h3>Quản lý users</h3>
                                 <p>{{ users_count or 0 }} tài khoản</p>
@@ -212,7 +288,16 @@
                         {% endif %}
 
                         <a class="action-card" href="{{ url_for('main.profile_dashboard') }}">
-                            <div class="action-icon">👤</div>
+                            <div class="action-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" class="lucide lucide-user-pen-icon lucide-user-pen">
+                                    <path d="M11.5 15H7a4 4 0 0 0-4 4v2" />
+                                    <path
+                                        d="M21.378 16.626a1 1 0 0 0-3.004-3.004l-4.01 4.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z" />
+                                    <circle cx="10" cy="7" r="4" />
+                                </svg>
+                            </div>
                             <div class="action-content">
                                 <h3>Profile</h3>
                                 <p>Cài đặt cá nhân</p>
@@ -229,158 +314,157 @@
 {% if user.role == 'admin' %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-// Initialize dashboard
-document.addEventListener('DOMContentLoaded', function() {
-    initializeCharts();
-    updateTime();
-    setInterval(updateTime, 1000);
-    setupEventListeners();
-});
-
-function updateTime() {
-    const now = new Date();
-    const timeString = now.toLocaleString('vi-VN', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
+    // Initialize dashboard
+    document.addEventListener('DOMContentLoaded', function () {
+        initializeCharts();
+        updateTime();
+        setInterval(updateTime, 1000);
+        setupEventListeners();
     });
-    const timeElement = document.getElementById('currentTime');
-    if (timeElement) {
-        timeElement.textContent = timeString;
-    }
-}
 
-function initializeCharts() {
-    // Articles Over Time
-    const articlesCtx = document.getElementById('articlesChart');
-    if (articlesCtx) {
-        new Chart(articlesCtx, {
-            type: 'line',
-            data: {
-                labels: generateDateLabels(30),
-                datasets: [{
-                    label: 'Đã xuất bản',
-                    data: generateRandomData(30, 5, 25),
-                    borderColor: '#3b82f6',
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                    tension: 0.4
-                }, {
-                    label: 'Chờ duyệt',
-                    data: generateRandomData(30, 2, 10),
-                    borderColor: '#f59e0b',
-                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'top' }
+    function updateTime() {
+        const now = new Date();
+        const timeString = now.toLocaleString('vi-VN', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        const timeElement = document.getElementById('currentTime');
+        if (timeElement) {
+            timeElement.textContent = timeString;
+        }
+    }
+
+    function initializeCharts() {
+        // Articles Over Time
+        const articlesCtx = document.getElementById('articlesChart');
+        if (articlesCtx) {
+            new Chart(articlesCtx, {
+                type: 'line',
+                data: {
+                    labels: generateDateLabels(30),
+                    datasets: [{
+                        label: 'Đã xuất bản',
+                        data: generateRandomData(30, 5, 25),
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: 'Chờ duyệt',
+                        data: generateRandomData(30, 2, 10),
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' }
+                    }
                 }
-            }
-        });
+            });
+        }
+
+        // Category Views
+        const categoryCtx = document.getElementById('categoryChart');
+        if (categoryCtx) {
+            new Chart(categoryCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Chính trị', 'Công nghệ', 'Thể thao', 'Giải trí', 'Kinh doanh'],
+                    datasets: [{
+                        data: [30, 25, 20, 15, 10],
+                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
+        // User Growth
+        const userGrowthCtx = document.getElementById('userGrowthChart');
+        if (userGrowthCtx) {
+            new Chart(userGrowthCtx, {
+                type: 'line',
+                data: {
+                    labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'],
+                    datasets: [{
+                        label: 'Người dùng mới',
+                        data: [45, 52, 48, 65, 58, 72],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
+        // Top Articles
+        const topArticlesCtx = document.getElementById('topArticlesChart');
+        if (topArticlesCtx) {
+            new Chart(topArticlesCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Bài 1', 'Bài 2', 'Bài 3', 'Bài 4', 'Bài 5'],
+                    datasets: [{
+                        label: 'Lượt xem',
+                        data: [1200, 980, 850, 720, 650],
+                        backgroundColor: '#3b82f6'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
     }
 
-    // Category Views
-    const categoryCtx = document.getElementById('categoryChart');
-    if (categoryCtx) {
-        new Chart(categoryCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Chính trị', 'Công nghệ', 'Thể thao', 'Giải trí', 'Kinh doanh'],
-                datasets: [{
-                    data: [30, 25, 20, 15, 10],
-                    backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6']
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false
-            }
-        });
+    function generateDateLabels(days) {
+        const labels = [];
+        for (let i = days - 1; i >= 0; i--) {
+            const date = new Date();
+            date.setDate(date.getDate() - i);
+            labels.push(date.getDate() + '/' + (date.getMonth() + 1));
+        }
+        return labels;
     }
 
-    // User Growth
-    const userGrowthCtx = document.getElementById('userGrowthChart');
-    if (userGrowthCtx) {
-        new Chart(userGrowthCtx, {
-            type: 'line',
-            data: {
-                labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'],
-                datasets: [{
-                    label: 'Người dùng mới',
-                    data: [45, 52, 48, 65, 58, 72],
-                    borderColor: '#10b981',
-                    backgroundColor: 'rgba(16, 185, 129, 0.2)',
-                    fill: true,
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false
-            }
-        });
+    function generateRandomData(count, min, max) {
+        const data = [];
+        for (let i = 0; i < count; i++) {
+            data.push(Math.floor(Math.random() * (max - min + 1)) + min);
+        }
+        return data;
     }
 
-    // Top Articles
-    const topArticlesCtx = document.getElementById('topArticlesChart');
-    if (topArticlesCtx) {
-        new Chart(topArticlesCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Bài 1', 'Bài 2', 'Bài 3', 'Bài 4', 'Bài 5'],
-                datasets: [{
-                    label: 'Lượt xem',
-                    data: [1200, 980, 850, 720, 650],
-                    backgroundColor: '#3b82f6'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false
-            }
-        });
+    function refreshChart(chartName) {
+        console.log('Refreshing chart:', chartName);
+        // Refresh specific chart with new data
     }
-}
 
-function generateDateLabels(days) {
-    const labels = [];
-    for (let i = days - 1; i >= 0; i--) {
-        const date = new Date();
-        date.setDate(date.getDate() - i);
-        labels.push(date.getDate() + '/' + (date.getMonth() + 1));
+    function setupEventListeners() {
+        const timeRange = document.getElementById('timeRange');
+        if (timeRange) {
+            timeRange.addEventListener('change', function () {
+                console.log('Time range changed to:', this.value);
+                // Reload charts with new time range
+            });
+        }
     }
-    return labels;
-}
-
-function generateRandomData(count, min, max) {
-    const data = [];
-    for (let i = 0; i < count; i++) {
-        data.push(Math.floor(Math.random() * (max - min + 1)) + min);
-    }
-    return data;
-}
-
-function refreshChart(chartName) {
-    console.log('Refreshing chart:', chartName);
-    // Refresh specific chart with new data
-}
-
-function setupEventListeners() {
-    const timeRange = document.getElementById('timeRange');
-    if (timeRange) {
-        timeRange.addEventListener('change', function() {
-            console.log('Time range changed to:', this.value);
-            // Reload charts with new time range
-        });
-    }
-}
 </script>
 {% endif %}
 {% endblock %}
-

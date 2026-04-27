@@ -23,19 +23,20 @@
     <!-- Search Section -->
     <section class="search-section">
         <form method="GET" action="{{ url_for('main.index') }}" class="search-form">
-            <input type="text" name="q" placeholder="Tìm kiếm bài viết..." value="{{ q or '' }}">
+            <input type="text" name="q" placeholder="Bạn muốn đọc tin gì hôm nay ?" value="{{ q or '' }}">
             <select name="category">
                 <option value="">-- Tất cả danh mục --</option>
                 {% for category in categories %}
-                <option value="{{ category.id }}" {% if selected_category|string == category.id|string %}selected{% endif %}>
+                <option value="{{ category.id }}" {% if selected_category|string==category.id|string %}selected{% endif
+                    %}>
                     {{ category.name }}
                 </option>
                 {% endfor %}
             </select>
             <select name="sort">
-                <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Mới nhất</option>
-                <option value="oldest" {% if sort == 'oldest' %}selected{% endif %}>Cũ nhất</option>
-                <option value="views" {% if sort == 'views' %}selected{% endif %}>Nhiều lượt xem</option>
+                <option value="newest" {% if sort=='newest' %}selected{% endif %}>Mới nhất</option>
+                <option value="oldest" {% if sort=='oldest' %}selected{% endif %}>Cũ nhất</option>
+                <option value="views" {% if sort=='views' %}selected{% endif %}>Nhiều lượt xem</option>
             </select>
             <button type="submit" class="btn btn-primary">Tìm</button>
         </form>
@@ -64,7 +65,8 @@
                             <span class="date">{{ main_featured.created_at.strftime('%d/%m/%Y %H:%M') }}</span>
                         </div>
                         <h1 class="featured-title">
-                            <a href="{{ url_for('main.article_detail', article_id=main_featured.id) }}">{{ main_featured.title }}</a>
+                            <a href="{{ url_for('main.article_detail', article_id=main_featured.id) }}">{{
+                                main_featured.title }}</a>
                         </h1>
                         {% if main_featured.excerpt %}
                         <p class="featured-excerpt">{{ main_featured.excerpt }}</p>
@@ -75,7 +77,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Sub Featured Articles -->
                 {% if featured_articles[1:] %}
                 <div class="featured-sub">
@@ -95,7 +97,8 @@
                                 <span class="date">{{ article.created_at.strftime('%d/%m/%Y') }}</span>
                             </div>
                             <h3 class="featured-sub-title">
-                                <a href="{{ url_for('main.article_detail', article_id=article.id) }}">{{ article.title }}</a>
+                                <a href="{{ url_for('main.article_detail', article_id=article.id) }}">{{ article.title
+                                    }}</a>
                             </h3>
                         </div>
                     </div>
@@ -111,7 +114,8 @@
             <section class="category-news-section">
                 <div class="section-header">
                     <h2 class="section-title">{{ category.name }}</h2>
-                    <a href="{{ url_for('main.category_articles', category_id=category.id) }}" class="view-more">Xem thêm →</a>
+                    <a href="{{ url_for('main.category_articles', category_id=category.id) }}" class="view-more">Xem
+                        thêm →</a>
                 </div>
                 <div class="category-news-grid">
                     {% for article in category_articles[category.id] %}
@@ -129,7 +133,8 @@
                                 <span class="date">{{ article.created_at.strftime('%d/%m/%Y %H:%M') }}</span>
                             </div>
                             <h3 class="category-news-title">
-                                <a href="{{ url_for('main.article_detail', article_id=article.id) }}">{{ article.title }}</a>
+                                <a href="{{ url_for('main.article_detail', article_id=article.id) }}">{{ article.title
+                                    }}</a>
                             </h3>
                             {% if article.excerpt %}
                             <p class="category-news-excerpt">{{ article.excerpt[:100] }}...</p>
@@ -155,7 +160,8 @@
                         <span class="number">{{ loop.index }}</span>
                         <div class="most-viewed-content">
                             <h4 class="most-viewed-title">
-                                <a href="{{ url_for('main.article_detail', article_id=article.id) }}">{{ article.title }}</a>
+                                <a href="{{ url_for('main.article_detail', article_id=article.id) }}">{{ article.title
+                                    }}</a>
                             </h4>
                             <div class="article-meta">
                                 <span class="category-badge">{{ article.category.name }}</span>
@@ -173,7 +179,8 @@
                 <h3 class="sidebar-title">DANH MỤC</h3>
                 <div class="sidebar-categories-list">
                     {% for category in categories %}
-                    <a href="{{ url_for('main.category_articles', category_id=category.id) }}" class="sidebar-category-item">
+                    <a href="{{ url_for('main.category_articles', category_id=category.id) }}"
+                        class="sidebar-category-item">
                         {{ category.name }}
                         <span class="category-count">{{ category_articles[category.id]|length }}</span>
                     </a>

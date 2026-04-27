@@ -12,17 +12,18 @@
     </div>
 
     <section class="search-section">
-        <form method="GET" action="{{ url_for('main.category_articles', category_id=category.id) }}" class="search-form">
+        <form method="GET" action="{{ url_for('main.category_articles', category_id=category.id) }}"
+            class="search-form">
             <input type="text" name="q" placeholder="Tìm trong danh mục..." value="{{ q or '' }}">
             <select name="sort">
-                <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Mới nhất</option>
-                <option value="oldest" {% if sort == 'oldest' %}selected{% endif %}>Cũ nhất</option>
-                <option value="views" {% if sort == 'views' %}selected{% endif %}>Nhiều lượt xem</option>
+                <option value="newest" {% if sort=='newest' %}selected{% endif %}>Mới nhất</option>
+                <option value="oldest" {% if sort=='oldest' %}selected{% endif %}>Cũ nhất</option>
+                <option value="views" {% if sort=='views' %}selected{% endif %}>Nhiều lượt xem</option>
             </select>
             <button type="submit" class="btn btn-primary">Tìm</button>
         </form>
     </section>
-    
+
     <div class="articles-grid">
         {% for article in articles %}
         <article class="article-card">
@@ -52,7 +53,7 @@
         <p class="no-articles">Chưa có bài viết nào trong danh mục này.</p>
         {% endfor %}
     </div>
-    
+
     <div class="back-link">
         <a href="{{ url_for('main.index') }}" class="btn btn-secondary">← Quay lại trang chủ</a>
     </div>

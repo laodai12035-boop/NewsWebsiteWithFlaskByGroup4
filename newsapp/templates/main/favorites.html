@@ -15,9 +15,9 @@
         <form method="GET" action="{{ url_for('main.my_favorites') }}" class="search-form">
             <input type="text" name="q" placeholder="Tìm trong mục yêu thích..." value="{{ q or '' }}">
             <select name="sort">
-                <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Mới nhất</option>
-                <option value="oldest" {% if sort == 'oldest' %}selected{% endif %}>Cũ nhất</option>
-                <option value="views" {% if sort == 'views' %}selected{% endif %}>Nhiều lượt xem</option>
+                <option value="newest" {% if sort=='newest' %}selected{% endif %}>Mới nhất</option>
+                <option value="oldest" {% if sort=='oldest' %}selected{% endif %}>Cũ nhất</option>
+                <option value="views" {% if sort=='views' %}selected{% endif %}>Nhiều lượt xem</option>
             </select>
             <button type="submit" class="btn btn-primary">Lọc</button>
         </form>
@@ -54,9 +54,9 @@
             {% endfor %}
         </div>
         {% else %}
-        <p class="no-articles">Bạn chưa lưu bài viết nào. Hãy nhấn "Lưu vào yêu thích" ở mỗi bài viết để thêm vào danh sách.</p>
+        <p class="no-articles">Bạn chưa lưu bài viết nào. Hãy nhấn "Lưu vào yêu thích" ở mỗi bài viết để thêm vào danh
+            sách.</p>
         {% endif %}
     </section>
 </div>
 {% endblock %}
-
