@@ -1,0 +1,339 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics Dashboard{% endblock %}
+
+{% block content %}
+<div class="analytics-dashboard">
+    <div class="container">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <h1> Analytics Dashboard</h1>
+            <div class="date-filter">
+                <select id="timeRange" class="form-control">
+                    <option value="7">7 ngày trước</option>
+                    <option value="30" selected>1 tháng trước</option>
+                    <option value="90">3 tháng trước</option>
+                    <option value="365">Năm trước</option>
+                </select>
+                <button class="btn btn-primary" onclick="exportData()">
+                     Export
+                </button>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon articles-icon">📝</div>
+                <div class="stat-content">
+                    <div class="stat-number" id="totalArticles">{{ stats.total_articles }}</div>
+                    <div class="stat-label">Tổng số bài viết</div>
+                    <div class="stat-change positive">+12% so với tháng trước</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon published-icon"></div>
+                <div class="stat-content">
+                    <div class="stat-number" id="publishedArticles">{{ stats.published_articles }}</div>
+                    <div class="stat-label">Đã phát hành</div>
+                    <div class="stat-change positive">+8% so với tháng trước</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon users-icon"></div>
+                <div class="stat-content">
+                    <div class="stat-number" id="activeUsers">{{ stats.active_users }}</div>
+                    <div class="stat-label">Người dùng</div>
+                    <div class="stat-change positive">+25% so với tháng trước</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon views-icon"></div>
+                <div class="stat-content">
+                    <div class="stat-number" id="todayViews">{{ stats.today_views }}</div>
+                    <div class="stat-label">Số lượt xem hôm nay</div>
+                    <div class="stat-change negative">-5% so với hôm qua</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Grid -->
+        <div class="charts-grid">
+            <!-- Articles Over Time -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3>Articles Over Time</h3>
+                    <div class="chart-actions">
+                        <button class="chart-refresh-btn" onclick="refreshChart('articlesChart')"></button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="articlesChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Views by Category -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3>Views by Category</h3>
+                    <div class="chart-actions">
+                        <button class="chart-refresh-btn" onclick="refreshChart('categoryChart')">🔄</button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+
+            <!-- User Growth -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3>User Growth</h3>
+                    <div class="chart-actions">
+                        <button class="chart-refresh-btn" onclick="refreshChart('userGrowthChart')">🔄</button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="userGrowthChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Top Performers -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3>Top Performing Articles</h3>
+                    <div class="chart-actions">
+                        <button class="chart-refresh-btn" onclick="refreshChart('topArticlesChart')">🔄</button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="topArticlesChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity Table -->
+        <div class="activity-section">
+            <div class="section-header">
+                <h3>Recent Activity</h3>
+                <div class="filter-tabs">
+                    <button class="tab-btn active" data-filter="all">All</button>
+                    <button class="tab-btn" data-filter="articles">Articles</button>
+                    <button class="tab-btn" data-filter="users">Users</button>
+                    <button class="tab-btn" data-filter="comments">Comments</button>
+                </div>
+            </div>
+            <div class="activity-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Type</th>
+                            <th>User</th>
+                            <th>Action</th>
+                            <th>Details</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="activityTableBody">
+                        <!-- Dynamic content -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Chart configurations
+let charts = {};
+
+// Initialize all charts
+document.addEventListener('DOMContentLoaded', function() {
+    initializeCharts();
+    loadActivityData();
+    setupEventListeners();
+});
+
+function initializeCharts() {
+    // Articles Over Time - Line Chart
+    const articlesCtx = document.getElementById('articlesChart').getContext('2d');
+    charts.articlesChart = new Chart(articlesCtx, {
+        type: 'line',
+        data: {
+            labels: generateDateLabels(30),
+            datasets: [{
+                label: 'Published',
+                data: generateRandomData(30, 10, 50),
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                tension: 0.4
+            }, {
+                label: 'Draft',
+                data: generateRandomData(30, 5, 20),
+                borderColor: '#f59e0b',
+                backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top' }
+            },
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+
+    // Views by Category - Doughnut Chart
+    const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+    charts.categoryChart = new Chart(categoryCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Politics', 'Technology', 'Sports', 'Entertainment', 'Business'],
+            datasets: [{
+                data: [30, 25, 20, 15, 10],
+                backgroundColor: [
+                    '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'right' }
+            }
+        }
+    });
+
+    // User Growth - Area Chart
+    const userGrowthCtx = document.getElementById('userGrowthChart').getContext('2d');
+    charts.userGrowthChart = new Chart(userGrowthCtx, {
+        type: 'line',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+                label: 'New Users',
+                data: [120, 150, 180, 200, 240, 280],
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top' }
+            },
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+
+    // Top Articles - Bar Chart
+    const topArticlesCtx = document.getElementById('topArticlesChart').getContext('2d');
+    charts.topArticlesChart = new Chart(topArticlesCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Article 1', 'Article 2', 'Article 3', 'Article 4', 'Article 5'],
+            datasets: [{
+                label: 'Views',
+                data: [1200, 980, 850, 720, 650],
+                backgroundColor: '#3b82f6'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+}
+
+// Helper functions
+function generateDateLabels(days) {
+    const labels = [];
+    for (let i = days - 1; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+    }
+    return labels;
+}
+
+function generateRandomData(count, min, max) {
+    const data = [];
+    for (let i = 0; i < count; i++) {
+        data.push(Math.floor(Math.random() * (max - min + 1)) + min);
+    }
+    return data;
+}
+
+function refreshChart(chartName) {
+    // Refresh specific chart with new data
+    console.log('Refreshing chart:', chartName);
+}
+
+function loadActivityData() {
+    // Load recent activity data
+    const activities = [
+        { time: '2 mins ago', type: 'article', user: 'John Doe', action: 'Published', details: 'Tech News Update', status: 'success' },
+        { time: '15 mins ago', type: 'user', user: 'Jane Smith', action: 'Registered', details: 'New user account', status: 'info' },
+        { time: '1 hour ago', type: 'comment', user: 'Bob Wilson', action: 'Commented', details: 'On "AI Revolution"', status: 'success' },
+        { time: '2 hours ago', type: 'article', user: 'Alice Brown', action: 'Submitted', details: 'Business Analysis', status: 'pending' }
+    ];
+
+    const tableBody = document.getElementById('activityTableBody');
+    tableBody.innerHTML = activities.map(activity => `
+        <tr>
+            <td>${activity.time}</td>
+            <td><span class="type-badge ${activity.type}">${activity.type}</span></td>
+            <td>${activity.user}</td>
+            <td>${activity.action}</td>
+            <td>${activity.details}</td>
+            <td><span class="status-badge ${activity.status}">${activity.status}</span></td>
+        </tr>
+    `).join('');
+}
+
+function setupEventListeners() {
+    // Time range change
+    document.getElementById('timeRange').addEventListener('change', function() {
+        console.log('Time range changed to:', this.value);
+        // Reload charts with new time range
+    });
+
+    // Filter tabs
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            console.log('Filter by:', this.dataset.filter);
+            // Filter activity table
+        });
+    });
+}
+
+function exportData() {
+    console.log('Exporting data...');
+    // Implement export functionality
+}
+</script>
+{% endblock %}
