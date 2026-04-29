@@ -9,7 +9,7 @@
             <div class="article-meta">
                 <span class="category-badge">{{ article.category.name }}</span>
                 <span class="date">{{ article.created_at.strftime('%d/%m/%Y %H:%M') }}</span>
-                <span class="views">👁️ {{ article.views }} lượt xem</span>
+                <span class="views">{{ article.views }} lượt xem</span>
             </div>
             <h1 class="article-title">{{ article.title }}</h1>
             <div class="article-author">
@@ -26,17 +26,26 @@
         
         {% if article.summary_text %}
         <section class="article-summary">
-            <h2>Tóm tắt nhanh</h2>
+            <div class="summary-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <h2>Tóm tắt nhanh</h2>
+                {% if user and user.role in ['admin', 'editor', 'author'] %}
+                <button id="btn-clear-summary" 
+                        data-url="{{ url_for('dashboard.clear_article_summary', article_id=article.id) }}"
+                        class="btn-icon" title="Xoá tóm tắt" style="background: none; border: none; cursor: pointer; color: #ff4d4d; font-size: 1.5rem; line-height: 1;">
+                    &times;
+                </button>
+                {% endif %}
+            </div>
             <p>{{ article.summary_text }}</p>
         </section>
-        {% elif enable_ai_summary and session.user_id and session.role in ['admin', 'editor', 'author'] %}
+        {% elif enable_ai_summary and user and user.role in ['admin', 'editor', 'author'] %}
         <section class="article-summary">
             <button id="btn-generate-summary"
                     data-url="{{ url_for('dashboard.summarize_article', article_id=article.id) }}"
                     class="btn btn-secondary">
                 Tạo tóm tắt (AI)
             </button>
-            <p class="small-muted">Dùng OpenAI để tạo tóm tắt, chỉ dành cho tác giả/biên tập/Admin.</p>
+            <p class="small-muted">Dùng AI để tạo tóm tắt, chỉ dành cho tác giả/biên tập/Admin.</p>
         </section>
         {% endif %}
 

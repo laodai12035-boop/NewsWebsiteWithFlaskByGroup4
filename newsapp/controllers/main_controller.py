@@ -18,6 +18,10 @@ def index():
     category_id = request.args.get("category")
     sort = request.args.get("sort") or "newest"
 
+    # If category is selected, redirect to category page
+    if category_id and category_id.isdigit():
+        return redirect(url_for('main.category_articles', category_id=int(category_id), q=q, sort=sort))
+
     # Base query for published articles
     base_query = Article.query.filter(Article.status == ArticleStatus.PUBLISHED)
     
@@ -46,9 +50,6 @@ def index():
     if q:
         like = f"%{q}%"
         query = query.filter(or_(Article.title.ilike(like), Article.excerpt.ilike(like), Article.content.ilike(like)))
-
-    if category_id and category_id.isdigit():
-        query = query.filter(Article.category_id == int(category_id))
 
     if sort == "views":
         query = query.order_by(Article.views.desc(), Article.created_at.desc())
@@ -113,10 +114,11 @@ def article_detail(article_id: int):
         .order_by(Comment.created_at.desc())
         .all()
     )
-    enable_ai_summary = bool(current_app.config.get("OPENAI_API_KEY"))
+    enable_ai_summary = bool(current_app.config.get("GROQ_API_KEY"))
     return render_template(
         "main/article_detail.html",
         article=article,
+        user=user,
         is_favorited=is_favorited,
         approved_comments=approved_comments,
         related_articles=related_articles,
@@ -169,6 +171,12 @@ def article_tts(article_id: int):
         mimetype="audio/mpeg",
         as_attachment=False
     )
+
+@bp.route("/categories")
+def categories():
+    categories = Category.query.filter_by(active=True).order_by(Category.name.asc()).all()
+    return render_template("main/categories.html", categories=categories)
+
 
 @bp.route("/category/<int:category_id>")
 def category_articles(category_id: int):

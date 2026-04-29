@@ -3,59 +3,77 @@
 {% block title %}{{ category.name }} - VÃI CHƯỞNG.SITE !!!{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="category-header">
-        <h1>{{ category.name }}</h1>
-        {% if category.description %}
-        <p class="category-description">{{ category.description }}</p>
-        {% endif %}
-    </div>
-
-    <section class="search-section">
-        <form method="GET" action="{{ url_for('main.category_articles', category_id=category.id) }}"
-            class="search-form">
-            <input type="text" name="q" placeholder="Tìm trong danh mục..." value="{{ q or '' }}">
-            <select name="sort">
-                <option value="newest" {% if sort=='newest' %}selected{% endif %}>Mới nhất</option>
-                <option value="oldest" {% if sort=='oldest' %}selected{% endif %}>Cũ nhất</option>
-                <option value="views" {% if sort=='views' %}selected{% endif %}>Nhiều lượt xem</option>
-            </select>
-            <button type="submit" class="btn btn-primary">Tìm</button>
-        </form>
-    </section>
-
-    <div class="articles-grid">
-        {% for article in articles %}
-        <article class="article-card">
-            {% set img = (article.image_ref|image_src) %}
-            {% if img %}
-            <div class="article-image">
-                <img src="{{ img }}" alt="{{ article.title }}">
+<div class="category-page">
+    <div class="container">
+        <!-- Category Header -->
+        <div class="category-header">
+            <div class="category-icon-large">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-layers-icon lucide-layers"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z"/><path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12"/><path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17"/></svg>
             </div>
-            {% endif %}
-            <div class="article-content">
-                <div class="article-meta">
-                    <span class="date">{{ article.created_at.strftime('%d/%m/%Y') }}</span>
-                </div>
-                <h3 class="article-title">
-                    <a href="{{ url_for('main.article_detail', article_id=article.id) }}">{{ article.title }}</a>
-                </h3>
-                {% if article.excerpt %}
-                <p class="article-excerpt">{{ article.excerpt }}</p>
+            <div class="category-info">
+                <h1>{{ category.name }}</h1>
+                {% if category.description %}
+                <p class="category-description">{{ category.description }}</p>
                 {% endif %}
-                <div class="article-footer">
-                    <span class="author">Tác giả: {{ article.author.username }}</span>
-                    <span class="views">👁️ {{ article.views }} lượt xem</span>
+                <div class="category-stats">
+                    <span class="articles-count">{{ articles|length }} bài viết</span>
                 </div>
             </div>
-        </article>
-        {% else %}
-        <p class="no-articles">Chưa có bài viết nào trong danh mục này.</p>
-        {% endfor %}
-    </div>
+        </div>
 
-    <div class="back-link">
-        <a href="{{ url_for('main.index') }}" class="btn btn-secondary">← Quay lại trang chủ</a>
+        <!-- Search Section -->
+        <section class="search-section">
+            <form method="GET" action="{{ url_for('main.category_articles', category_id=category.id) }}"
+                class="search-form">
+                <input type="text" name="q" placeholder="Tìm trong danh mục..." value="{{ q or '' }}">
+                <select name="sort">
+                    <option value="newest" {% if sort=='newest' %}selected{% endif %}>Mới nhất</option>
+                    <option value="oldest" {% if sort=='oldest' %}selected{% endif %}>Cũ nhất</option>
+                    <option value="views" {% if sort=='views' %}selected{% endif %}>Nhiều lượt xem</option>
+                </select>
+                <button type="submit" class="btn btn-primary">Tìm</button>
+            </form>
+        </section>
+
+        <!-- Articles Grid -->
+        <div class="articles-grid">
+            {% for article in articles %}
+            <article class="article-card">
+                {% set img = (article.image_ref|image_src) %}
+                {% if img %}
+                <div class="article-image">
+                    <img src="{{ img }}" alt="{{ article.title }}">
+                </div>
+                {% endif %}
+                <div class="article-content">
+                    <div class="article-meta">
+                        <span class="date">{{ article.created_at.strftime('%d/%m/%Y') }}</span>
+                    </div>
+                    <h3 class="article-title">
+                        <a href="{{ url_for('main.article_detail', article_id=article.id) }}">{{ article.title }}</a>
+                    </h3>
+                    {% if article.excerpt %}
+                    <p class="article-excerpt">{{ article.excerpt }}</p>
+                    {% endif %}
+                    <div class="article-footer">
+                        <span class="author">Tác giả: {{ article.author.username }}</span>
+                        <span class="views">{{ article.views }} lượt xem</span>
+                    </div>
+                </div>
+            </article>
+            {% else %}
+            <div class="no-articles">
+                <div class="no-articles-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-ban-icon lucide-ban"><circle cx="12" cy="12" r="10"/><path d="M4.929 4.929 19.07 19.071"/></svg></div>
+                <h3>Chưa có bài viết nào</h3>
+                <p>Danh mục này chưa có bài viết nào được đăng.</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Back Link -->
+        <div class="back-link">
+            <a href="{{ url_for('main.index') }}" class="btn btn-secondary">← Quay lại trang chủ</a>
+        </div>
     </div>
 </div>
 {% endblock %}

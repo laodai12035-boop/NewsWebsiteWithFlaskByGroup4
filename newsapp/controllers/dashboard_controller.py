@@ -293,9 +293,26 @@ def summarize_article(article_id: int):
     try:
         summary = ai_service.summarize_article(article)
     except Exception as exc:
-        return jsonify({"ok": False, "error": f"Lỗi khi gọi OpenAI: {exc}"}), 500
+        return jsonify({"ok": False, "error": f"Lỗi khi gọi AI: {exc}"}), 500
 
     article.summary_text = summary
     db.session.commit()
     return jsonify({"ok": True, "summary": summary})
+@bp.route("/articles/<int:article_id>/clear_summary", methods=["POST"])
+@login_required
+def clear_article_summary(article_id: int):
+    """Remove AI summary for an article."""
+    user = get_current_user()
+    assert user is not None
 
+    article = Article.query.get_or_404(article_id)
+
+    can_manage = user.role in (UserRole.ADMIN, UserRole.EDITOR) or (
+        user.role == UserRole.AUTHOR and article.user_id == user.id
+    )
+    if not can_manage:
+        return jsonify({"ok": False, "error": "Bạn không có quyền xoá tóm tắt bài viết này."}), 403
+
+    article.summary_text = None
+    db.session.commit()
+    return jsonify({"ok": True})

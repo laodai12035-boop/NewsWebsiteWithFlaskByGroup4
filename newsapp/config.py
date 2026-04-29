@@ -15,10 +15,9 @@ class Config:
     MAX_CONTENT_LENGTH = int(os.environ.get("MAX_CONTENT_LENGTH", 2 * 1024 * 1024))
     MAX_IMAGE_BYTES = int(os.environ.get("MAX_IMAGE_BYTES", 2 * 1024 * 1024))
     ALLOWED_IMAGE_EXTENSIONS = {"png", "jpg", "jpeg", "webp", "gif"}
-
-    # OpenAI configuration (optional — for AI summary feature).
-    OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
-    OPENAI_SUMMARY_MODEL = os.environ.get("OPENAI_SUMMARY_MODEL", "gpt-4o-mini")
+    # Groq configuration (optional — for AI summary feature).
+    GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
+    GROQ_MODEL = os.environ.get("GROQ_MODEL", "llama-3.3-70b-versatile")
 
     # TTS voice (optional override)
     TTS_VOICE = os.environ.get("TTS_VOICE", "vi-VN-HoaiMyNeural")

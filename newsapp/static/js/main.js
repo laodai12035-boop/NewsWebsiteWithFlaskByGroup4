@@ -1,13 +1,13 @@
 // Close flash messages
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Close flash messages
     const closeButtons = document.querySelectorAll('.close-flash');
     closeButtons.forEach(button => {
-        button.addEventListener('click', function() {
+        button.addEventListener('click', function () {
             this.parentElement.style.display = 'none';
         });
     });
-    
+
     // Auto-hide flash messages after 5 seconds
     const flashMessages = document.querySelectorAll('.flash-message');
     flashMessages.forEach(message => {
@@ -19,13 +19,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 300);
         }, 5000);
     });
-    
+
     // Mobile menu toggle (if needed in future)
     const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
     const navMenu = document.querySelector('.nav-menu');
-    
+
     if (mobileMenuToggle && navMenu) {
-        mobileMenuToggle.addEventListener('click', function() {
+        mobileMenuToggle.addEventListener('click', function () {
             navMenu.classList.toggle('active');
         });
     }
@@ -60,6 +60,30 @@ document.addEventListener('DOMContentLoaded', function() {
                 .catch(() => {
                     alert('Không thể tóm tắt bài viết.');
                 });
+        });
+    }
+
+    // Clear AI summary
+    const clearSummaryButton = document.getElementById('btn-clear-summary');
+    if (clearSummaryButton) {
+        clearSummaryButton.addEventListener('click', function (e) {
+            e.preventDefault();
+            if (!confirm('Bạn có chắc chắn muốn xoá bản tóm tắt này không?')) return;
+
+            const url = clearSummaryButton.dataset.url;
+            fetch(url, {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.ok) {
+                        location.reload();
+                    } else {
+                        alert(data.error || 'Không thể xoá tóm tắt.');
+                    }
+                })
+                .catch(() => alert('Lỗi kết nối.'));
         });
     }
 });

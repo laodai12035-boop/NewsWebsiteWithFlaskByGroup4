@@ -25,7 +25,7 @@
                 <nav class="nav-menu">
                     <ul>
                         <li><a href="{{ url_for('main.index') }}">Trang chủ</a></li>
-                        <li><a href="#categories">Danh mục</a></li>
+                        <li><a href="{{ url_for('main.categories') }}">Danh mục</a></li>
                         {% if session.user_id %}
                         <li><a href="{{ url_for('main.my_favorites') }}">Yêu thích</a></li>
                         <li><a href="{{ url_for('main.profile_dashboard') }}">Profile</a></li>
@@ -123,7 +123,7 @@
                     <h3>Liên kết nhanh</h3>
                     <ul>
                         <li><a href="{{ url_for('main.index') }}">Trang chủ</a></li>
-                        <li><a href="#categories">Danh mục</a></li>
+                        <li><a href="{{ url_for('main.categories') }}">Danh mục</a></li>
                         {% if session.user_id %}
                         <li><a href="{{ url_for('dashboard.dashboard_home') }}">Dashboard</a></li>
                         {% else %}
