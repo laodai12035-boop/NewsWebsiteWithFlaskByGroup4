@@ -29,10 +29,18 @@ def create_app(test_config: dict | None = None, *, seed: bool = True) -> Flask:
     # Ensure instance folder exists (for database & backups).
     os.makedirs(app.instance_path, exist_ok=True)
 
-    # Database path inside instance/.
-    db_path = os.path.join(app.instance_path, "news_website_v2.db")
-    app.config["SQLITE_DB_PATH"] = db_path
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + db_path.replace("\\", "/")
+    # Database configuration
+    database_url = os.environ.get("DATABASE_URL")
+    if database_url:
+        # Render provides postgres://, but SQLAlchemy 1.4+ requires postgresql://
+        if database_url.startswith("postgres://"):
+            database_url = database_url.replace("postgres://", "postgresql://", 1)
+        app.config["SQLALCHEMY_DATABASE_URI"] = database_url
+    else:
+        # Fallback to SQLite path inside instance/.
+        db_path = os.path.join(app.instance_path, "news_website_v2.db")
+        app.config["SQLITE_DB_PATH"] = db_path
+        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + db_path.replace("\\", "/")
 
     if test_config:
         app.config.update(test_config)
