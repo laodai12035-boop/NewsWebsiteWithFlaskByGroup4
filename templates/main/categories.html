@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Danh mục - VÃI CHƯỞNG.SITE !!!{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="categories-header">
+        <h1><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-layers-icon lucide-layers"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z"/><path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12"/><path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17"/></svg> Danh mục tin tức</h1>
+        <p class="categories-subtitle">Khám phá các chủ đề tin tức theo danh mục</p>
+    </div>
+
+    <div class="categories-grid">
+        {% for category in categories %}
+        <a href="{{ url_for('main.category_articles', category_id=category.id) }}" class="category-card">
+            <div class="category-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-newspaper-icon lucide-newspaper"><path d="M15 18h-5"/><path d="M18 14h-8"/><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-4 0v-9a2 2 0 0 1 2-2h2"/><rect width="8" height="4" x="10" y="6" rx="1"/></svg></div>
+            <div class="category-content">
+                <h3 class="category-name">{{ category.name }}</h3>
+                {% if category.description %}
+                <p class="category-description">{{ category.description }}</p>
+                {% endif %}
+                <div class="category-meta">
+                    <span class="category-count">Xem bài viết →</span>
+                </div>
+            </div>
+        </a>
+        {% else %}
+        <p class="no-categories">Chưa có danh mục nào.</p>
+        {% endfor %}
+    </div>
+
+    <div class="back-link">
+        <a href="{{ url_for('main.index') }}" class="btn btn-secondary">← Quay lại trang chủ</a>
+    </div>
+</div>
+{% endblock %}

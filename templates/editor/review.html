@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Duyệt bài - VÃI CHƯỞNG.SITE !!!{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="dashboard-header">
+        <div>
+            <h1>Hàng duyệt bài viết</h1>
+            <p>Danh sách bài viết đang chờ duyệt (pending).</p>
+        </div>
+        <a class="btn btn-secondary" href="{{ url_for('dashboard.dashboard_home') }}">← Dashboard</a>
+    </div>
+
+    <section class="search-section">
+        <form method="GET" action="{{ url_for('editor.review_queue') }}" class="search-form">
+            <input type="text" name="q" placeholder="Tìm kiếm..." value="{{ q or '' }}">
+            <select name="category">
+                <option value="">-- Tất cả danh mục --</option>
+                {% for category in categories %}
+                <option value="{{ category.id }}" {% if selected_category|string == category.id|string %}selected{% endif %}>
+                    {{ category.name }}
+                </option>
+                {% endfor %}
+            </select>
+            <select name="sort">
+                <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Mới nhất</option>
+                <option value="oldest" {% if sort == 'oldest' %}selected{% endif %}>Cũ nhất</option>
+            </select>
+            <button type="submit" class="btn btn-primary">Lọc</button>
+        </form>
+    </section>
+
+    <div class="dashboard-articles">
+        {% if articles %}
+        <div class="articles-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tiêu đề</th>
+                        <th>Tác giả</th>
+                        <th>Danh mục</th>
+                        <th>Ngày nộp</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for article in articles %}
+                    <tr>
+                        <td><a href="{{ url_for('main.article_detail', article_id=article.id) }}">{{ article.title }}</a></td>
+                        <td>{{ article.author.username }}</td>
+                        <td>{{ article.category.name }}</td>
+                        <td>{{ article.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                        <td class="actions">
+                            <form method="POST" action="{{ url_for('editor.approve_article', article_id=article.id) }}" style="display:inline;">
+                                <button class="btn btn-sm btn-primary" type="submit">Duyệt</button>
+                            </form>
+                            <form method="POST" action="{{ url_for('editor.reject_article', article_id=article.id) }}" style="display:inline;" class="inline-form">
+                                <input type="text" name="note" placeholder="Lý do từ chối (tuỳ chọn)" class="input-sm">
+                                <button class="btn btn-sm btn-danger" type="submit">Từ chối</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="no-articles">Không có bài chờ duyệt.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

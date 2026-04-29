@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}{% if category %}Sửa danh mục{% else %}Tạo danh mục{% endif %} - VÃI CHƯỞNG.SITE !!!{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="form-header">
+        <h1>{% if category %}Sửa danh mục{% else %}Tạo danh mục{% endif %}</h1>
+        <a class="btn btn-secondary" href="{{ url_for('admin.categories_list') }}">← Quay lại</a>
+    </div>
+
+    <div class="form-container">
+        <form method="POST" class="article-form">
+            <div class="form-group">
+                <label for="name">Tên danh mục *</label>
+                <input type="text" id="name" name="name" value="{{ category.name if category else '' }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Mô tả</label>
+                <textarea id="description" name="description" rows="4">{{ category.description if category else '' }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="active" {% if category and category.active or not category %}checked{% endif %}>
+                    <span>Active</span>
+                </label>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">{% if category %}Cập nhật{% else %}Tạo{% endif %}</button>
+                <a class="btn btn-secondary" href="{{ url_for('admin.categories_list') }}">Hủy</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+

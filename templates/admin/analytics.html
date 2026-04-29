@@ -16,7 +16,7 @@
                     <option value="365">Năm trước</option>
                 </select>
                 <button class="btn btn-primary" onclick="exportData()">
-                     Export
+                    Export
                 </button>
             </div>
         </div>
@@ -24,7 +24,17 @@
         <!-- Statistics Cards -->
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-icon articles-icon">📝</div>
+                <div class="stat-icon articles-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="lucide lucide-file-pen-icon lucide-file-pen">
+                        <path
+                            d="M12.659 22H18a2 2 0 0 0 2-2V8a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 14 2H6a2 2 0 0 0-2 2v9.34" />
+                        <path d="M14 2v5a1 1 0 0 0 1 1h5" />
+                        <path
+                            d="M10.378 12.622a1 1 0 0 1 3 3.003L8.36 20.637a2 2 0 0 1-.854.506l-2.867.837a.5.5 0 0 1-.62-.62l.836-2.869a2 2 0 0 1 .506-.853z" />
+                    </svg>
+                </div>
                 <div class="stat-content">
                     <div class="stat-number" id="totalArticles">{{ stats.total_articles }}</div>
                     <div class="stat-label">Tổng số bài viết</div>
@@ -33,7 +43,16 @@
             </div>
 
             <div class="stat-card">
-                <div class="stat-icon published-icon"></div>
+                <div class="stat-icon published-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="lucide lucide-list-check-icon lucide-list-check">
+                        <path d="M16 5H3" />
+                        <path d="M16 12H3" />
+                        <path d="M11 19H3" />
+                        <path d="m15 18 2 2 4-4" />
+                    </svg>
+                </div>
                 <div class="stat-content">
                     <div class="stat-number" id="publishedArticles">{{ stats.published_articles }}</div>
                     <div class="stat-label">Đã phát hành</div>
@@ -42,7 +61,16 @@
             </div>
 
             <div class="stat-card">
-                <div class="stat-icon users-icon"></div>
+                <div class="stat-icon users-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="lucide lucide-users-icon lucide-users">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                        <path d="M16 3.128a4 4 0 0 1 0 7.744" />
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                        <circle cx="9" cy="7" r="4" />
+                    </svg>
+                </div>
                 <div class="stat-content">
                     <div class="stat-number" id="activeUsers">{{ stats.active_users }}</div>
                     <div class="stat-label">Người dùng</div>
@@ -51,7 +79,14 @@
             </div>
 
             <div class="stat-card">
-                <div class="stat-icon views-icon"></div>
+                <div class="stat-icon views-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="lucide lucide-eye-icon lucide-eye">
+                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                        <circle cx="12" cy="12" r="3" />
+                    </svg>
+                </div>
                 <div class="stat-content">
                     <div class="stat-number" id="todayViews">{{ stats.today_views }}</div>
                     <div class="stat-label">Số lượt xem hôm nay</div>
@@ -80,7 +115,13 @@
                 <div class="chart-header">
                     <h3>Views by Category</h3>
                     <div class="chart-actions">
-                        <button class="chart-refresh-btn" onclick="refreshChart('categoryChart')">🔄</button>
+                        <button class="chart-refresh-btn" onclick="refreshChart('categoryChart')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="lucide lucide-rotate-ccw-icon lucide-rotate-ccw">
+                                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                                <path d="M3 3v5h5" />
+                            </svg></button>
                     </div>
                 </div>
                 <div class="chart-container">
@@ -93,7 +134,13 @@
                 <div class="chart-header">
                     <h3>User Growth</h3>
                     <div class="chart-actions">
-                        <button class="chart-refresh-btn" onclick="refreshChart('userGrowthChart')">🔄</button>
+                        <button class="chart-refresh-btn" onclick="refreshChart('userGrowthChart')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="lucide lucide-rotate-ccw-icon lucide-rotate-ccw">
+                                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                                <path d="M3 3v5h5" />
+                            </svg></button>
                     </div>
                 </div>
                 <div class="chart-container">
@@ -106,7 +153,13 @@
                 <div class="chart-header">
                     <h3>Top Performing Articles</h3>
                     <div class="chart-actions">
-                        <button class="chart-refresh-btn" onclick="refreshChart('topArticlesChart')">🔄</button>
+                        <button class="chart-refresh-btn" onclick="refreshChart('topArticlesChart')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="lucide lucide-rotate-ccw-icon lucide-rotate-ccw">
+                                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                                <path d="M3 3v5h5" />
+                            </svg></button>
                     </div>
                 </div>
                 <div class="chart-container">
@@ -150,190 +203,171 @@
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-// Chart configurations
-let charts = {};
+    // Chart configurations
+    let charts = {};
 
-// Initialize all charts
-document.addEventListener('DOMContentLoaded', function() {
-    initializeCharts();
-    loadActivityData();
-    setupEventListeners();
-});
-
-function initializeCharts() {
-    // Articles Over Time - Line Chart
-    const articlesCtx = document.getElementById('articlesChart').getContext('2d');
-    charts.articlesChart = new Chart(articlesCtx, {
-        type: 'line',
-        data: {
-            labels: generateDateLabels(30),
-            datasets: [{
-                label: 'Published',
-                data: generateRandomData(30, 10, 50),
-                borderColor: '#3b82f6',
-                backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                tension: 0.4
-            }, {
-                label: 'Draft',
-                data: generateRandomData(30, 5, 20),
-                borderColor: '#f59e0b',
-                backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                tension: 0.4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { position: 'top' }
-            },
-            scales: {
-                y: { beginAtZero: true }
-            }
-        }
+    // Initialize all charts
+    document.addEventListener('DOMContentLoaded', function () {
+        const initialDays = document.getElementById('timeRange').value;
+        initializeCharts(initialDays);
+        loadActivityData();
+        setupEventListeners();
     });
 
-    // Views by Category - Doughnut Chart
-    const categoryCtx = document.getElementById('categoryChart').getContext('2d');
-    charts.categoryChart = new Chart(categoryCtx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Politics', 'Technology', 'Sports', 'Entertainment', 'Business'],
-            datasets: [{
-                data: [30, 25, 20, 15, 10],
-                backgroundColor: [
-                    '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'
-                ]
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { position: 'right' }
-            }
+    async function fetchData(url) {
+        try {
+            const response = await fetch(url);
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            return null;
         }
-    });
-
-    // User Growth - Area Chart
-    const userGrowthCtx = document.getElementById('userGrowthChart').getContext('2d');
-    charts.userGrowthChart = new Chart(userGrowthCtx, {
-        type: 'line',
-        data: {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-            datasets: [{
-                label: 'New Users',
-                data: [120, 150, 180, 200, 240, 280],
-                borderColor: '#10b981',
-                backgroundColor: 'rgba(16, 185, 129, 0.2)',
-                fill: true,
-                tension: 0.4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { position: 'top' }
-            },
-            scales: {
-                y: { beginAtZero: true }
-            }
-        }
-    });
-
-    // Top Articles - Bar Chart
-    const topArticlesCtx = document.getElementById('topArticlesChart').getContext('2d');
-    charts.topArticlesChart = new Chart(topArticlesCtx, {
-        type: 'bar',
-        data: {
-            labels: ['Article 1', 'Article 2', 'Article 3', 'Article 4', 'Article 5'],
-            datasets: [{
-                label: 'Views',
-                data: [1200, 980, 850, 720, 650],
-                backgroundColor: '#3b82f6'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false }
-            },
-            scales: {
-                y: { beginAtZero: true }
-            }
-        }
-    });
-}
-
-// Helper functions
-function generateDateLabels(days) {
-    const labels = [];
-    for (let i = days - 1; i >= 0; i--) {
-        const date = new Date();
-        date.setDate(date.getDate() - i);
-        labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
     }
-    return labels;
-}
 
-function generateRandomData(count, min, max) {
-    const data = [];
-    for (let i = 0; i < count; i++) {
-        data.push(Math.floor(Math.random() * (max - min + 1)) + min);
+    async function initializeCharts(days = 30) {
+        // 1. Articles Over Time
+        const articlesData = await fetchData(`/admin/api/articles-over-time?days=${days}`);
+        if (articlesData) {
+            const ctx = document.getElementById('articlesChart').getContext('2d');
+            if (charts.articlesChart) charts.articlesChart.destroy();
+            charts.articlesChart = new Chart(ctx, {
+                type: 'line',
+                data: articlesData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'top' } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+
+        // 2. Views by Category
+        const categoryData = await fetchData('/admin/api/category-views');
+        if (categoryData) {
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+            if (charts.categoryChart) charts.categoryChart.destroy();
+            charts.categoryChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: categoryData.labels,
+                    datasets: [{
+                        data: categoryData.data,
+                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#6366f1', '#ec4899']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'right' } }
+                }
+            });
+        }
+
+        // 3. User Growth
+        const userData = await fetchData('/admin/api/user-growth');
+        if (userData) {
+            const ctx = document.getElementById('userGrowthChart').getContext('2d');
+            if (charts.userGrowthChart) charts.userGrowthChart.destroy();
+            charts.userGrowthChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: userData.labels,
+                    datasets: [{
+                        label: 'New Users',
+                        data: userData.data,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+
+        // 4. Top Articles
+        const topArticles = await fetchData('/admin/api/top-articles');
+        if (topArticles) {
+            const ctx = document.getElementById('topArticlesChart').getContext('2d');
+            if (charts.topArticlesChart) charts.topArticlesChart.destroy();
+            charts.topArticlesChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: topArticles.labels,
+                    datasets: [{
+                        label: 'Views',
+                        data: topArticles.data,
+                        backgroundColor: '#3b82f6'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: { legend: { display: false } },
+                    scales: { x: { beginAtZero: true } }
+                }
+            });
+        }
     }
-    return data;
-}
 
-function refreshChart(chartName) {
-    // Refresh specific chart with new data
-    console.log('Refreshing chart:', chartName);
-}
+    function refreshChart(chartName) {
+        const days = document.getElementById('timeRange').value;
+        initializeCharts(days);
+    }
 
-function loadActivityData() {
-    // Load recent activity data
-    const activities = [
-        { time: '2 mins ago', type: 'article', user: 'John Doe', action: 'Published', details: 'Tech News Update', status: 'success' },
-        { time: '15 mins ago', type: 'user', user: 'Jane Smith', action: 'Registered', details: 'New user account', status: 'info' },
-        { time: '1 hour ago', type: 'comment', user: 'Bob Wilson', action: 'Commented', details: 'On "AI Revolution"', status: 'success' },
-        { time: '2 hours ago', type: 'article', user: 'Alice Brown', action: 'Submitted', details: 'Business Analysis', status: 'pending' }
-    ];
+    async function loadActivityData() {
+        // Fetch stats to update summary cards if needed
+        const stats = await fetchData('/admin/api/stats');
+        if (stats) {
+            document.getElementById('totalArticles').textContent = stats.total_articles;
+            document.getElementById('publishedArticles').textContent = stats.published_articles;
+            document.getElementById('activeUsers').textContent = stats.active_users;
+            document.getElementById('todayViews').textContent = stats.today_views;
+        }
 
-    const tableBody = document.getElementById('activityTableBody');
-    tableBody.innerHTML = activities.map(activity => `
-        <tr>
-            <td>${activity.time}</td>
-            <td><span class="type-badge ${activity.type}">${activity.type}</span></td>
-            <td>${activity.user}</td>
-            <td>${activity.action}</td>
-            <td>${activity.details}</td>
-            <td><span class="status-badge ${activity.status}">${activity.status}</span></td>
-        </tr>
-    `).join('');
-}
+        // Recent activity implementation
+        const activities = await fetchData('/admin/api/activities');
+        const tableBody = document.getElementById('activityTableBody');
+        
+        if (activities && activities.length > 0) {
+            tableBody.innerHTML = activities.map(activity => `
+                <tr>
+                    <td>${activity.time}</td>
+                    <td><span class="type-badge ${activity.type}">${activity.type}</span></td>
+                    <td>${activity.user}</td>
+                    <td>${activity.action}</td>
+                    <td>${activity.details}</td>
+                    <td><span class="status-badge ${activity.status}">${activity.status}</span></td>
+                </tr>
+            `).join('');
+        } else {
+            tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Chưa có hoạt động nào được ghi nhận.</td></tr>';
+        }
+    }
 
-function setupEventListeners() {
-    // Time range change
-    document.getElementById('timeRange').addEventListener('change', function() {
-        console.log('Time range changed to:', this.value);
-        // Reload charts with new time range
-    });
-
-    // Filter tabs
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            console.log('Filter by:', this.dataset.filter);
-            // Filter activity table
+    function setupEventListeners() {
+        document.getElementById('timeRange').addEventListener('change', function () {
+            initializeCharts(this.value);
         });
-    });
-}
 
-function exportData() {
-    console.log('Exporting data...');
-    // Implement export functionality
-}
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                // Filter activity logic
+            });
+        });
+    }
+
+    function exportData() {
+        console.log('Exporting data...');
+        // Implement export functionality
+    }
 </script>
 {% endblock %}

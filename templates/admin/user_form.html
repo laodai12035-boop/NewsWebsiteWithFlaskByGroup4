@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}{% if user %}Sửa User{% else %}Tạo User{% endif %} - VÃI CHƯỞNG.SITE !!!{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="form-header">
+        <h1>{% if user %}Sửa User{% else %}Tạo User{% endif %}</h1>
+        <a class="btn btn-secondary" href="{{ url_for('admin.users_list') }}">← Quay lại</a>
+    </div>
+
+    <div class="form-container">
+        <form method="POST" class="article-form">
+            <div class="form-group">
+                <label for="username">Username *</label>
+                <input type="text" id="username" name="username" value="{{ user.username if user else '' }}" {% if user %}disabled{% endif %} required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email *</label>
+                <input type="email" id="email" name="email" value="{{ user.email if user else '' }}" required>
+            </div>
+
+            {% if not user %}
+            <div class="form-group">
+                <label for="password">Password *</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            {% else %}
+            <div class="form-group">
+                <label for="new_password">Đổi password (tuỳ chọn)</label>
+                <input type="password" id="new_password" name="new_password" placeholder="Nhập password mới nếu cần">
+            </div>
+            {% endif %}
+
+            <div class="form-group">
+                <label for="role">Role *</label>
+                <select id="role" name="role" required>
+                    {% for r in roles %}
+                    <option value="{{ r }}" {% if user and user.role == r %}selected{% endif %}>{{ r }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="active" {% if user and user.active or not user %}checked{% endif %}>
+                    <span>Active</span>
+                </label>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">{% if user %}Cập nhật{% else %}Tạo{% endif %}</button>
+                <a class="btn btn-secondary" href="{{ url_for('admin.users_list') }}">Hủy</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
