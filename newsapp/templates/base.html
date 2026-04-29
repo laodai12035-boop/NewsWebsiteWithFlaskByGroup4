@@ -97,7 +97,7 @@
     <div class="flash-messages">
         {% for category, message in messages %}
         <div class="flash-message flash-{{ category }}">
-            {{ message }}
+            {{ message | safe }}
             <button class="close-flash">&times;</button>
         </div>
         {% endfor %}
