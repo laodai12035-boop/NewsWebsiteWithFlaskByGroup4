@@ -360,6 +360,60 @@ def api_top_articles():
     })
 
 
+@bp.route("/api/activities")
+@roles_required(UserRole.ADMIN)
+def api_activities():
+    """API endpoint for recent system activities"""
+    limit = request.args.get('limit', 15, type=int)
+    
+    activities = []
+    
+    # 1. Recent articles
+    recent_articles = Article.query.order_by(Article.created_at.desc()).limit(limit).all()
+    for art in recent_articles:
+        activities.append({
+            'time': art.created_at.strftime('%Y-%m-%d %H:%M'),
+            'timestamp': art.created_at.timestamp(),
+            'type': 'articles',
+            'user': art.author.username if art.author else 'Unknown',
+            'action': 'Created article',
+            'details': art.title[:50] + '...' if len(art.title) > 50 else art.title,
+            'status': art.status
+        })
+        
+    # 2. Recent users
+    recent_users = User.query.order_by(User.created_at.desc()).limit(limit).all()
+    for u in recent_users:
+        activities.append({
+            'time': u.created_at.strftime('%Y-%m-%d %H:%M'),
+            'timestamp': u.created_at.timestamp(),
+            'type': 'users',
+            'user': u.username,
+            'action': 'Registered',
+            'details': u.email,
+            'status': 'active' if u.active else 'inactive'
+        })
+        
+    # 3. Recent comments (if you have Comment model)
+    from ..models import Comment
+    recent_comments = Comment.query.order_by(Comment.created_at.desc()).limit(limit).all()
+    for c in recent_comments:
+        activities.append({
+            'time': c.created_at.strftime('%Y-%m-%d %H:%M'),
+            'timestamp': c.created_at.timestamp(),
+            'type': 'comments',
+            'user': c.author.username if c.author else 'Guest',
+            'action': 'Commented',
+            'details': c.content[:50] + '...' if len(c.content) > 50 else c.content,
+            'status': c.status
+        })
+        
+    # Sort all by timestamp descending
+    activities.sort(key=lambda x: x['timestamp'], reverse=True)
+    
+    return jsonify(activities[:limit])
+
+
 def get_dashboard_stats(days=30):
     """Get dashboard statistics"""
     start_date = datetime.now() - timedelta(days=days)

@@ -208,174 +208,159 @@
 
     // Initialize all charts
     document.addEventListener('DOMContentLoaded', function () {
-        initializeCharts();
+        const initialDays = document.getElementById('timeRange').value;
+        initializeCharts(initialDays);
         loadActivityData();
         setupEventListeners();
     });
 
-    function initializeCharts() {
-        // Articles Over Time - Line Chart
-        const articlesCtx = document.getElementById('articlesChart').getContext('2d');
-        charts.articlesChart = new Chart(articlesCtx, {
-            type: 'line',
-            data: {
-                labels: generateDateLabels(30),
-                datasets: [{
-                    label: 'Published',
-                    data: generateRandomData(30, 10, 50),
-                    borderColor: '#3b82f6',
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                    tension: 0.4
-                }, {
-                    label: 'Draft',
-                    data: generateRandomData(30, 5, 20),
-                    borderColor: '#f59e0b',
-                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'top' }
-                },
-                scales: {
-                    y: { beginAtZero: true }
-                }
-            }
-        });
-
-        // Views by Category - Doughnut Chart
-        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
-        charts.categoryChart = new Chart(categoryCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Politics', 'Technology', 'Sports', 'Entertainment', 'Business'],
-                datasets: [{
-                    data: [30, 25, 20, 15, 10],
-                    backgroundColor: [
-                        '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'
-                    ]
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'right' }
-                }
-            }
-        });
-
-        // User Growth - Area Chart
-        const userGrowthCtx = document.getElementById('userGrowthChart').getContext('2d');
-        charts.userGrowthChart = new Chart(userGrowthCtx, {
-            type: 'line',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                datasets: [{
-                    label: 'New Users',
-                    data: [120, 150, 180, 200, 240, 280],
-                    borderColor: '#10b981',
-                    backgroundColor: 'rgba(16, 185, 129, 0.2)',
-                    fill: true,
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'top' }
-                },
-                scales: {
-                    y: { beginAtZero: true }
-                }
-            }
-        });
-
-        // Top Articles - Bar Chart
-        const topArticlesCtx = document.getElementById('topArticlesChart').getContext('2d');
-        charts.topArticlesChart = new Chart(topArticlesCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Article 1', 'Article 2', 'Article 3', 'Article 4', 'Article 5'],
-                datasets: [{
-                    label: 'Views',
-                    data: [1200, 980, 850, 720, 650],
-                    backgroundColor: '#3b82f6'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
-                },
-                scales: {
-                    y: { beginAtZero: true }
-                }
-            }
-        });
+    async function fetchData(url) {
+        try {
+            const response = await fetch(url);
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            return null;
+        }
     }
 
-    // Helper functions
-    function generateDateLabels(days) {
-        const labels = [];
-        for (let i = days - 1; i >= 0; i--) {
-            const date = new Date();
-            date.setDate(date.getDate() - i);
-            labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+    async function initializeCharts(days = 30) {
+        // 1. Articles Over Time
+        const articlesData = await fetchData(`/admin/api/articles-over-time?days=${days}`);
+        if (articlesData) {
+            const ctx = document.getElementById('articlesChart').getContext('2d');
+            if (charts.articlesChart) charts.articlesChart.destroy();
+            charts.articlesChart = new Chart(ctx, {
+                type: 'line',
+                data: articlesData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'top' } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
         }
-        return labels;
-    }
 
-    function generateRandomData(count, min, max) {
-        const data = [];
-        for (let i = 0; i < count; i++) {
-            data.push(Math.floor(Math.random() * (max - min + 1)) + min);
+        // 2. Views by Category
+        const categoryData = await fetchData('/admin/api/category-views');
+        if (categoryData) {
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+            if (charts.categoryChart) charts.categoryChart.destroy();
+            charts.categoryChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: categoryData.labels,
+                    datasets: [{
+                        data: categoryData.data,
+                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#6366f1', '#ec4899']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'right' } }
+                }
+            });
         }
-        return data;
+
+        // 3. User Growth
+        const userData = await fetchData('/admin/api/user-growth');
+        if (userData) {
+            const ctx = document.getElementById('userGrowthChart').getContext('2d');
+            if (charts.userGrowthChart) charts.userGrowthChart.destroy();
+            charts.userGrowthChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: userData.labels,
+                    datasets: [{
+                        label: 'New Users',
+                        data: userData.data,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+
+        // 4. Top Articles
+        const topArticles = await fetchData('/admin/api/top-articles');
+        if (topArticles) {
+            const ctx = document.getElementById('topArticlesChart').getContext('2d');
+            if (charts.topArticlesChart) charts.topArticlesChart.destroy();
+            charts.topArticlesChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: topArticles.labels,
+                    datasets: [{
+                        label: 'Views',
+                        data: topArticles.data,
+                        backgroundColor: '#3b82f6'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: { legend: { display: false } },
+                    scales: { x: { beginAtZero: true } }
+                }
+            });
+        }
     }
 
     function refreshChart(chartName) {
-        // Refresh specific chart with new data
-        console.log('Refreshing chart:', chartName);
+        const days = document.getElementById('timeRange').value;
+        initializeCharts(days);
     }
 
-    function loadActivityData() {
-        // Load recent activity data
-        const activities = [
-        ];
+    async function loadActivityData() {
+        // Fetch stats to update summary cards if needed
+        const stats = await fetchData('/admin/api/stats');
+        if (stats) {
+            document.getElementById('totalArticles').textContent = stats.total_articles;
+            document.getElementById('publishedArticles').textContent = stats.published_articles;
+            document.getElementById('activeUsers').textContent = stats.active_users;
+            document.getElementById('todayViews').textContent = stats.today_views;
+        }
 
+        // Recent activity implementation
+        const activities = await fetchData('/admin/api/activities');
         const tableBody = document.getElementById('activityTableBody');
-        tableBody.innerHTML = activities.map(activity => `
-        <tr>
-            <td>${activity.time}</td>
-            <td><span class="type-badge ${activity.type}">${activity.type}</span></td>
-            <td>${activity.user}</td>
-            <td>${activity.action}</td>
-            <td>${activity.details}</td>
-            <td><span class="status-badge ${activity.status}">${activity.status}</span></td>
-        </tr>
-    `).join('');
+        
+        if (activities && activities.length > 0) {
+            tableBody.innerHTML = activities.map(activity => `
+                <tr>
+                    <td>${activity.time}</td>
+                    <td><span class="type-badge ${activity.type}">${activity.type}</span></td>
+                    <td>${activity.user}</td>
+                    <td>${activity.action}</td>
+                    <td>${activity.details}</td>
+                    <td><span class="status-badge ${activity.status}">${activity.status}</span></td>
+                </tr>
+            `).join('');
+        } else {
+            tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Chưa có hoạt động nào được ghi nhận.</td></tr>';
+        }
     }
 
     function setupEventListeners() {
-        // Time range change
         document.getElementById('timeRange').addEventListener('change', function () {
-            console.log('Time range changed to:', this.value);
-            // Reload charts with new time range
+            initializeCharts(this.value);
         });
 
-        // Filter tabs
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', function () {
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
-                console.log('Filter by:', this.dataset.filter);
-                // Filter activity table
+                // Filter activity logic
             });
         });
     }

@@ -348,8 +348,11 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     // Initialize dashboard
+    let charts = {};
+
     document.addEventListener('DOMContentLoaded', function () {
-        initializeCharts();
+        const initialDays = document.getElementById('timeRange')?.value || 30;
+        initializeCharts(initialDays);
         updateTime();
         setInterval(updateTime, 1000);
         setupEventListeners();
@@ -371,67 +374,68 @@
         }
     }
 
-    function initializeCharts() {
-        // Articles Over Time
+    async function fetchData(url) {
+        try {
+            const response = await fetch(url);
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            return null;
+        }
+    }
+
+    async function initializeCharts(days = 30) {
+        // 1. Articles Over Time
+        const articlesData = await fetchData(`/admin/api/articles-over-time?days=${days}`);
         const articlesCtx = document.getElementById('articlesChart');
-        if (articlesCtx) {
-            new Chart(articlesCtx, {
+        if (articlesData && articlesCtx) {
+            if (charts.articlesChart) charts.articlesChart.destroy();
+            charts.articlesChart = new Chart(articlesCtx, {
                 type: 'line',
+                data: articlesData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'top' } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+
+        // 2. Category Views
+        const categoryData = await fetchData('/admin/api/category-views');
+        const categoryCtx = document.getElementById('categoryChart');
+        if (categoryData && categoryCtx) {
+            if (charts.categoryChart) charts.categoryChart.destroy();
+            charts.categoryChart = new Chart(categoryCtx, {
+                type: 'doughnut',
                 data: {
-                    labels: generateDateLabels(30),
+                    labels: categoryData.labels,
                     datasets: [{
-                        label: 'Đã xuất bản',
-                        data: generateRandomData(30, 5, 25),
-                        borderColor: '#3b82f6',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        tension: 0.4
-                    }, {
-                        label: 'Chờ duyệt',
-                        data: generateRandomData(30, 2, 10),
-                        borderColor: '#f59e0b',
-                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                        tension: 0.4
+                        data: categoryData.data,
+                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#6366f1', '#ec4899']
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'top' }
-                    }
+                    plugins: { legend: { position: 'right' } }
                 }
             });
         }
 
-        // Category Views
-        const categoryCtx = document.getElementById('categoryChart');
-        if (categoryCtx) {
-            new Chart(categoryCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Chính trị', 'Công nghệ', 'Thể thao', 'Giải trí', 'Kinh doanh'],
-                    datasets: [{
-                        data: [30, 25, 20, 15, 10],
-                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false
-                }
-            });
-        }
-
-        // User Growth
+        // 3. User Growth
+        const userData = await fetchData('/admin/api/user-growth');
         const userGrowthCtx = document.getElementById('userGrowthChart');
-        if (userGrowthCtx) {
-            new Chart(userGrowthCtx, {
+        if (userData && userGrowthCtx) {
+            if (charts.userGrowthChart) charts.userGrowthChart.destroy();
+            charts.userGrowthChart = new Chart(userGrowthCtx, {
                 type: 'line',
                 data: {
-                    labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'],
+                    labels: userData.labels,
                     datasets: [{
                         label: 'Người dùng mới',
-                        data: [45, 52, 48, 65, 58, 72],
+                        data: userData.data,
                         borderColor: '#10b981',
                         backgroundColor: 'rgba(16, 185, 129, 0.2)',
                         fill: true,
@@ -440,61 +444,48 @@
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true } }
                 }
             });
         }
 
-        // Top Articles
+        // 4. Top Articles
+        const topArticles = await fetchData('/admin/api/top-articles');
         const topArticlesCtx = document.getElementById('topArticlesChart');
-        if (topArticlesCtx) {
-            new Chart(topArticlesCtx, {
+        if (topArticles && topArticlesCtx) {
+            if (charts.topArticlesChart) charts.topArticlesChart.destroy();
+            charts.topArticlesChart = new Chart(topArticlesCtx, {
                 type: 'bar',
                 data: {
-                    labels: ['Bài 1', 'Bài 2', 'Bài 3', 'Bài 4', 'Bài 5'],
+                    labels: topArticles.labels,
                     datasets: [{
                         label: 'Lượt xem',
-                        data: [1200, 980, 850, 720, 650],
+                        data: topArticles.data,
                         backgroundColor: '#3b82f6'
                     }]
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: { legend: { display: false } },
+                    scales: { x: { beginAtZero: true } }
                 }
             });
         }
     }
 
-    function generateDateLabels(days) {
-        const labels = [];
-        for (let i = days - 1; i >= 0; i--) {
-            const date = new Date();
-            date.setDate(date.getDate() - i);
-            labels.push(date.getDate() + '/' + (date.getMonth() + 1));
-        }
-        return labels;
-    }
-
-    function generateRandomData(count, min, max) {
-        const data = [];
-        for (let i = 0; i < count; i++) {
-            data.push(Math.floor(Math.random() * (max - min + 1)) + min);
-        }
-        return data;
-    }
-
     function refreshChart(chartName) {
-        console.log('Refreshing chart:', chartName);
-        // Refresh specific chart with new data
+        const days = document.getElementById('timeRange')?.value || 30;
+        initializeCharts(days);
     }
 
     function setupEventListeners() {
         const timeRange = document.getElementById('timeRange');
         if (timeRange) {
             timeRange.addEventListener('change', function () {
-                console.log('Time range changed to:', this.value);
-                // Reload charts with new time range
+                initializeCharts(this.value);
             });
         }
     }

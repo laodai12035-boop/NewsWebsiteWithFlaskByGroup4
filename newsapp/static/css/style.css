@@ -3644,55 +3644,58 @@ tbody tr:last-child td {
 }
 
 .type-badge {
-    padding: 0.25rem 0.5rem;
+    padding: 0.25rem 0.6rem;
     border-radius: var(--radius-sm);
     font-size: 0.7rem;
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.type-badge.article {
-    background: var(--primary-bg);
+.type-badge.articles {
+    background: var(--primary-light);
     color: var(--primary-color);
 }
 
-.type-badge.user {
+.type-badge.users {
     background: var(--success-bg);
-    color: var(--success-color);
+    color: var(--success-text);
 }
 
-.type-badge.comment {
+.type-badge.comments {
     background: var(--warning-bg);
-    color: var(--warning-color);
+    color: var(--warning-text);
 }
 
 .status-badge {
-    padding: 0.25rem 0.5rem;
+    padding: 0.25rem 0.6rem;
     border-radius: var(--radius-sm);
     font-size: 0.7rem;
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
 }
 
-.status-badge.success {
+/* Article Statuses */
+.status-badge.published, .status-badge.approved, .status-badge.active {
     background: var(--success-bg);
-    color: var(--success-color);
+    color: var(--success-text);
 }
 
-.status-badge.info {
-    background: var(--primary-bg);
-    color: var(--primary-color);
-}
-
-.status-badge.pending {
+.status-badge.draft, .status-badge.pending {
     background: var(--warning-bg);
-    color: var(--warning-color);
+    color: var(--warning-text);
 }
 
-.status-badge.error {
+.status-badge.rejected, .status-badge.inactive, .status-badge.error {
     background: var(--danger-bg);
-    color: var(--danger-color);
+    color: var(--danger-text);
 }
+
+.status-badge.archived {
+    background: var(--border-color);
+    color: var(--text-muted);
+}
+
 
 /* ============================================================
    RESPONSIVE — Mobile (≤ 768px)
