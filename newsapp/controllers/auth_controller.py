@@ -101,3 +101,68 @@ def change_password():
     
     return render_template("auth/change_password.html")
 
+@bp.route("/forgot-password", methods=["GET", "POST"])
+def forgot_password():
+    if request.method == "POST":
+        email = (request.form.get("email") or "").strip().lower()
+        if not email:
+            flash("Vui lòng nhập email.", "error")
+            return redirect(url_for("auth.forgot_password"))
+
+        user = User.query.filter_by(email=email).first()
+        if user:
+            from flask import current_app
+            from itsdangerous import URLSafeTimedSerializer
+            
+            s = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
+            token = s.dumps(email, salt="password-reset-salt")
+            reset_url = url_for("auth.reset_password", token=token, _external=True)
+            
+            # Trong thực tế sẽ gửi email ở đây.
+            # Hiện tại chúng ta giả lập bằng cách in ra log và flash cho người dùng thấy.
+            print(f"Password reset link for {email}: {reset_url}")
+            flash(f"Yêu cầu đã được gửi! (Trong demo, click vào đây để đặt lại: <a href='{reset_url}'>Đặt lại mật khẩu</a>)", "info")
+        else:
+            # Luôn báo thành công để tránh lộ thông tin email nào tồn tại (security best practice)
+            flash("Nếu email tồn tại trong hệ thống, bạn sẽ nhận được liên kết đặt lại mật khẩu.", "info")
+            
+        return redirect(url_for("auth.login"))
+
+    return render_template("auth/forgot_password.html")
+
+
+@bp.route("/reset-password/<token>", methods=["GET", "POST"])
+def reset_password(token):
+    from flask import current_app
+    from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadTimeSignature
+    
+    s = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
+    try:
+        # Link hết hạn sau 30 phút (1800 giây)
+        email = s.loads(token, salt="password-reset-salt", max_age=1800)
+    except (SignatureExpired, BadTimeSignature):
+        flash("Liên kết đặt lại mật khẩu đã hết hạn hoặc không hợp lệ.", "error")
+        return redirect(url_for("auth.forgot_password"))
+
+    if request.method == "POST":
+        new_password = request.form.get("password", "")
+        confirm_password = request.form.get("confirm_password", "")
+        
+        if not new_password or not confirm_password:
+            flash("Vui lòng nhập đầy đủ thông tin.", "error")
+            return render_template("auth/reset_password.html", token=token)
+            
+        if new_password != confirm_password:
+            flash("Mật khẩu không khớp!", "error")
+            return render_template("auth/reset_password.html", token=token)
+
+        user = User.query.filter_by(email=email).first()
+        if user:
+            auth_service.set_password(user=user, new_password=new_password)
+            flash("Đã đặt lại mật khẩu thành công! Vui lòng đăng nhập lại.", "success")
+            return redirect(url_for("auth.login"))
+        else:
+            flash("Không tìm thấy người dùng.", "error")
+            return redirect(url_for("auth.forgot_password"))
+
+    return render_template("auth/reset_password.html", token=token)
