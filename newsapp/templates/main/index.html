@@ -44,6 +44,62 @@
 
     <!-- Main Content Grid -->
     <div class="main-grid">
+        {% if q or sort != 'newest' %}
+        <!-- Search/Filter Results View -->
+        <div class="main-content" style="grid-column: span 2;">
+            <section class="search-results-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        {% if q %}
+                        Kết quả tìm kiếm cho: "{{ q }}"
+                        {% else %}
+                        Danh sách bài viết
+                        {% endif %}
+                    </h2>
+                    <span class="results-count">{{ articles|length }} kết quả</span>
+                </div>
+
+                <div class="latest-news-grid">
+                    {% for article in articles %}
+                    <article class="latest-news-item">
+                        {% set img = (article.image_ref|image_src) %}
+                        {% if img %}
+                        <div class="latest-news-image">
+                            <a href="{{ url_for('main.article_detail', article_id=article.id) }}">
+                                <img src="{{ img }}" alt="{{ article.title }}">
+                            </a>
+                        </div>
+                        {% endif %}
+                        <div class="latest-news-content">
+                            <div class="article-meta">
+                                <span class="category-badge">{{ article.category.name }}</span>
+                                <span class="date">{{ article.created_at.strftime('%d/%m/%Y %H:%M') }}</span>
+                            </div>
+                            <h3 class="latest-news-title">
+                                <a href="{{ url_for('main.article_detail', article_id=article.id) }}">{{ article.title }}</a>
+                            </h3>
+                            {% if article.excerpt %}
+                            <p class="latest-news-excerpt">{{ article.excerpt }}</p>
+                            {% endif %}
+                            <div class="article-footer">
+                                <span class="author">{{ article.author.username }}</span>
+                                <span class="views">{{ article.views }} lượt xem</span>
+                            </div>
+                        </div>
+                    </article>
+                    {% else %}
+                    <div class="no-results" style="text-align: center; padding: 3rem; background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border-color); grid-column: 1/-1;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">🔍</div>
+                        <h3>Không tìm thấy bài viết nào</h3>
+                        <p>Vui lòng thử lại với từ khóa khác hoặc thay đổi bộ lọc.</p>
+                        <a href="{{ url_for('main.index') }}" class="btn btn-primary" style="margin-top: 1rem;">Xem tất cả bài viết</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+        </div>
+        {% else %}
+        <!-- Standard Homepage View (No search/filter) -->
         <!-- Left Column - Featured News -->
         <div class="main-content">
             <!-- Featured Article -->
@@ -188,9 +244,11 @@
                 </div>
             </section>
         </div>
+        {% endif %}
     </div>
 
-    <!-- Latest News Section -->
+    {% if not q and sort == 'newest' %}
+    <!-- Latest News Section (Only for home) -->
     {% if latest_articles %}
     <section class="latest-news-section">
         <div class="section-header">
@@ -227,6 +285,7 @@
             {% endfor %}
         </div>
     </section>
+    {% endif %}
     {% endif %}
 </div>
 {% endblock %}
